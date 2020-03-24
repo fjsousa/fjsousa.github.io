@@ -62,7 +62,7 @@
      {:href "https://disqus.com/?ref_noscript"}
      "comments powered by Disqus."]]])
 
-(defn layout [title description content menu modal-menu twitter-el disqus-el]
+(defn layout [title description content menu modal-menu] #_#_twitter-el disqus-el
   [:html
    {:lang "en"}
    [:head

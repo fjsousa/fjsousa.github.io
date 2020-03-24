@@ -99,12 +99,12 @@
                            (front-page-hiccup page-structure)
                            menu
                            modal-menu
-                           nil nil)
+                           #_#_nil nil)
         sitemap (sitemap base-url page-structure)
         rss-feed (rss-feed base-url page-structure)]
     (doseq [[k {:keys [:title :subtitle :content :slug]}] page-structure]
       (let [meta-title (str "Data Journal - " title)
-            full-page (layout meta-title subtitle content menu modal-menu twitter-el disqus-el)
+            full-page (layout meta-title subtitle content menu modal-menu) #_#_twitter-el disqus-el
             path (str root "/" slug ".html")]
         (spit path (hiccup/html full-page))))
     (spit (str root "/index.html") (hiccup/html front-page))
