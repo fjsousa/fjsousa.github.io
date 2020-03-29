@@ -76,7 +76,9 @@
     [:link {:href "assets/css/github.css" :rel "stylesheet"}]
     #_[:link {:type "text/css" :href "//cdn-images.mailchimp.com/embedcode/slim-081711.css" :rel "stylesheet"}]
     [:script {:src "https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_CHTML"
-              :async "async":type "text/javascript"}]]
+              :async "async":type "text/javascript"}]
+    [:script {:src "https://plausible.io/js/plausible.js"
+              :async "defer" :data-domain "datajournal.co.uk"}]]
 
    [:body
     [:div#desktop-source.source [:a {:target "_blank" :href "https://github.com/data-journal/data-journal.github.io"} "Source"]]
