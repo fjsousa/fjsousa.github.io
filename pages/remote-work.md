@@ -1,5 +1,5 @@
 Title: Remote work in the age of Covid-19
-Date: 2019 03 23
+Date: 2020 03 23
 Tags: remote-work,covid-19,mindfulness
 Subtitle: I've been wanting to write about my experience with remote work and how simple mindfulness techniques had a huge impact on my work quality. Now with Covid-19 sending a lot of people around me into forced remote work and with bad news pouring through every device with a screen around us, I felt the urgency to write it more than ever.
 Thumb: <img alt="A minimalist affordable remote desk setup" src="assets/img/remote/desk_s.jpg">
