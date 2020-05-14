@@ -42,20 +42,22 @@
                 [:div.index-description subtitle]
                 [:div.continue-reading [:a {:href (str slug ".html")} "Continue Reading »"]]])))])
 
+(def description-copy "A place for tech and numerical experimentalism. Be welcome.")
+
 (def short-description
-  [:p "A place for tech and numerical experimentalism. Be welcome."])
+  [:p description-copy])
 
 (def tracker-info
   [:a {:style "color: rgba(150,150,150,0.8);text-decoration: underline;"  :target "_blank" :href "https://blog.mozilla.org/firefox/what-is-a-web-tracker/"} "This website is tracker free!"])
 
 
-(defn layout [title description content menu modal-menu] 
+(defn layout [title description content menu modal-menu]
   [:html
    {:lang "en"}
    [:head
     [:meta
      {:content "width=device-width, initial-scale=1, maximum-scale=1" :name "viewport"}]
-    [:meta {:name "description" :content description}]
+    [:meta {:name "description" :content description-copy}]
     [:title title]
     [:link {:href "assets/css/font.css", :rel "stylesheet"}]
     [:link {:href "assets/css/font-awesome.min.css" :rel "stylesheet"}]
