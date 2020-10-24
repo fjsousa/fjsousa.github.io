@@ -12,8 +12,8 @@
             [clojure-watch.core :refer [start-watch]])
   (:gen-class))
 
-(def root "/home/fsousa/src/data-journal.github.io")
-(def base-url "http://datajournal.co.uk")
+(def root "/home/fsousa/src/flaviosousa.co")
+(def base-url "https://flaviosousa.co")
 
 (defn get-pages [root] (->> (str root "/pages/*.md") glob/glob))
 
