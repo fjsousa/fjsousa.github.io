@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1">
+  <meta name="viewport" content="width=device-width, minimal-ui">
+  <title>Data Journal - "A place for tech and numerical experimentalism. Be welcome.</title>
+  <link rel="stylesheet" href="assets/css/main.css" />
+</head>
+<body>
+  <header>
+    <div class="container">
+      <div class="row">
+        <div class="col-12 col-sm-4 col-md-3">
+          <p class="h1"><strong><a href="index.html">Data Journal</a></strong></p>
+          <p>Flávio Sousa</p>
+        </div>
+
+        <div class="col-12 col-sm-4 col-md-5">
+          <div class="about">
+            <p><i>A place for tech and numerical experimentalism.<br>Be welcome.</i></p>
+          </div>
+        </div>
+
+        <div class="col-12 col-sm-4">
+          <div class="social-links">
+            <a href="https://medium.com/@fjsousa" target="_blank"><img src="assets/img/icon-medium.svg"></a>
+            <a href="https://pt.linkedin.com/pub/fl%C3%A1vio-sousa/3a/a06/770" target="_blank"><img src="assets/img/icon-linkedin.svg"></a>
+            <a href="https://twitter.com/verysocialsousa" target="_blank"><img src="assets/img/icon-twitter.svg"></a>
+            <a href="https://github.com/fjsousa" target="_blank"><img src="assets/img/icon-github.svg"></a>
+            <a href="https://datajournal.co.uk/feed.xml" target="_blank"><img src="assets/img/icon-rss.svg"></a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <div class="container">
+      <div class="row">
+        <div class="col-12 col-sm-6 col-sm-push-3">
+          <article class="article-body">
+            <h1>Forest Fires and Parallel Cellular Automata, going from 8x to 240x faster with GPUs</h1><p>Forest fire numerical models use Cellular Automata (CA) to simulate fire propagation. A grid or mesh of the terrain is provided, along with maps for parameters like fuel properties, wind speed, humidity and others. The CA is basically a way to propagate an ignition state, based on minimum travel times, between adjacent cells.</p><p>Other methods exist, like vector based methods, that compute the position of the fire front in consecutive time steps, or partial differences equation (PDE), that allow for a two way coupling of the fire model and the weather models.</p><p>Although the last type is much more accurate, the first two are the <em>de facto</em> tools for fire modeling due to the compromise between computing speed and accuracy.</p><p>In this blog post, I'll show you two versions of a CA model, a trivial and a parallel version I developed during my Masters. Both versions were ported to <a href="https://en.wikipedia.org/wiki/CUDA">Nvidia GPUs</a> with the aim of speeding up the existing single core implementation.</p><p>Initially, a direct, naive port was attempted which wasn't very performant. This lead me to reformulate the algorithm so that it was fully parallel and therefore, more suitable to the many-core architecture of the GPU.</p><p>Performance increase was only achieved with a rethinking of the algorithm, not by tweaking and fine tunning the GPU parameters of a flawed approach.</p><h2>Naive algorithm</h2><p>The existing algorithm was the following:</p><ul><li>An outer loop iterates over time and an inner loop iterates in space, over the rows and columns of the terrain grid.</li><li>The inner loop looks for active cells in a map of ignition times and propagates the fire outwards, to each one of the 8 neighbours.</li></ul><p><img alt="Outer propagation" src="assets/img/fgm/outer.png" title="Outer Propagation"></p><ul><li>The ignition time of each neighbour is computed with the formula below. The ignition map is then updated:</li></ul><p></p><div class="equation"> <span class="MathJax_Preview" style="color: inherit; display: none;"></span><span class="mjx-chtml MJXc-display" style="text-align: center;"><span id="MathJax-Element-1-Frame" class="mjx-chtml MathJax_CHTML" tabindex="0" style="text-align: center; position: relative;" data-mathml="<math xmlns=&quot;http://www.w3.org/1998/Math/MathML&quot; display=&quot;block&quot;><mi>t</mi><mo>+</mo><mfrac><mi>l</mi><mrow><mi>R</mi><mi>O</mi><mi>S</mi></mrow></mfrac></math>" role="presentation"><span id="MJXc-Node-1" class="mjx-math" aria-hidden="true"><span id="MJXc-Node-2" class="mjx-mrow"><span id="MJXc-Node-3" class="mjx-mi"><span class="mjx-char MJXc-TeX-math-I" style="padding-top: 0.378em; padding-bottom: 0.316em;">t</span></span><span id="MJXc-Node-4" class="mjx-mo MJXc-space2"><span class="mjx-char MJXc-TeX-main-R" style="padding-top: 0.316em; padding-bottom: 0.441em;">+</span></span><span id="MJXc-Node-5" class="mjx-mfrac MJXc-space2"><span class="mjx-box MJXc-stacked" style="width: 2.367em; padding: 0px 0.12em;"><span class="mjx-numerator" style="width: 2.367em; top: -1.396em;"><span id="MJXc-Node-6" class="mjx-mi"><span class="mjx-char MJXc-TeX-math-I" style="padding-top: 0.503em; padding-bottom: 0.316em;">l</span></span></span><span class="mjx-denominator" style="width: 2.367em; bottom: -0.782em;"><span id="MJXc-Node-7" class="mjx-mrow"><span id="MJXc-Node-8" class="mjx-mi"><span class="mjx-char MJXc-TeX-math-I" style="padding-top: 0.441em; padding-bottom: 0.316em;">R</span></span><span id="MJXc-Node-9" class="mjx-mi"><span class="mjx-char MJXc-TeX-math-I" style="padding-top: 0.503em; padding-bottom: 0.316em;">O</span></span><span id="MJXc-Node-10" class="mjx-mi"><span class="mjx-char MJXc-TeX-math-I" style="padding-top: 0.503em; padding-bottom: 0.316em; padding-right: 0.032em;">S</span></span></span></span><span class="mjx-line" style="border-bottom: 1.3px solid; top: -0.289em; width: 2.367em;"></span></span><span class="mjx-vsize" style="height: 2.178em; vertical-align: -0.782em;"></span></span></span></span><span class="MJX_Assistive_MathML MJX_Assistive_MathML_Block" role="presentation"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><mi>t</mi><mo>+</mo><mfrac><mi>l</mi><mrow><mi>R</mi><mi>O</mi><mi>S</mi></mrow></mfrac></math></span></span></span><script type="math/tex; mode=display" id="MathJax-Element-1"> t + \frac{l}{ROS}</script> </div><p></p><p>where <em>ROS</em> is the <strong>R</strong>ate <strong>O</strong>f <strong>S</strong>pread, basically the flame speed in the neighbour direction, function of wind, moisture, terrain, etc; <em>l</em> is the distance between cells and <em>t</em> is the time in the central cell.</p><p></p><div class="fgm-wrapper">   <canvas height="400" id="fgm-serial" width="400">Consider updating your browser.</canvas> </div> <button class="actionbutton" onclick="dumb.run()">►</button><p></p><p>If you press <strong>Run</strong>, you'll see an animation of the fire propagation with the naive version of the CA. Notice that each square represents a portion of the terrain and the colour is just a linear scale that maps to ignition time. The scale goes from blue, to red, white is the starting point and black means the cell is unburned.</p><p>This is the JavaScript code that runs the spatial loop. If you inspect this page, you'll see a very similar code:</p><pre><code class="Javascript hljs">
+              <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">naiveSpatialLoop</span>(<span class="hljs-params"></span>)</span>{
+
+                t = tn;
+                tn = <span class="hljs-literal">Infinity</span>;
+
+
+                <span class="hljs-comment">//Spatial loop that looks for active cells,</span>
+                <span class="hljs-comment">//ie, cells with ignition time = t</span>
+                <span class="hljs-keyword">for</span> ( row = <span class="hljs-number">0</span>; row &lt; rows; row++){
+                  <span class="hljs-keyword">for</span> ( col = <span class="hljs-number">0</span>; col &lt; cols; col++){
+                    <span class="hljs-keyword">var</span> idx = col + cols*row;
+
+                    <span class="hljs-comment">//Update tn, so that tn is the minimum</span>
+                    <span class="hljs-comment">//ignition time for all cells,</span>
+                    <span class="hljs-comment">//in a given iteration</span>
+                    <span class="hljs-keyword">if</span> ( ignitionMap[idx] &gt; t &amp;&amp;
+                    tn &gt; ignitionMap[idx] ){
+
+                      tn = ignitionMap[idx];
+                      <span class="hljs-keyword">continue</span>;
+                    }
+
+                    <span class="hljs-comment">//skips cells that already burned</span>
+                    <span class="hljs-keyword">if</span> ( ignitionMap[idx] !== t )
+                    <span class="hljs-keyword">continue</span>;
+
+                    <span class="hljs-comment">//propagate fire for all 8 neighours</span>
+                    <span class="hljs-keyword">for</span> (<span class="hljs-keyword">var</span> n = <span class="hljs-number">0</span>; n &lt; <span class="hljs-number">8</span>; n++){
+
+                      <span class="hljs-comment">//neighbour index calc</span>
+                      <span class="hljs-keyword">var</span> ncol = col + ncols[n];
+                      <span class="hljs-keyword">var</span> nrow = row + nrows[n];
+                      <span class="hljs-keyword">var</span> nidx = ncol + nrow*cols;
+
+                      <span class="hljs-comment">//Check if neighbour is inbound</span>
+                      <span class="hljs-keyword">if</span> ( !(nrow &gt;= <span class="hljs-number">0</span> &amp;&amp; nrow &lt; rows &amp;&amp;
+                      ncol &gt;= <span class="hljs-number">0</span> &amp;&amp; ncol &lt; cols) )
+                      <span class="hljs-keyword">continue</span>;
+
+                      <span class="hljs-comment">// skip if cell has already burned</span>
+                      <span class="hljs-keyword">if</span> ( ignitionMap[nidx] &lt; t )
+                      <span class="hljs-keyword">continue</span>;
+
+                      <span class="hljs-comment">//Compute neighbour cell ignition time,</span>
+                      <span class="hljs-comment">//based on the propagation speed</span>
+                      <span class="hljs-comment">//tcell = t + cell dist / flame_speed</span>
+                      igntime = t + ndist[n] / ROS;
+
+
+                      <span class="hljs-comment">//Update ignition time in the map only</span>
+                      <span class="hljs-comment">//if the the current time is smaller</span>
+                      <span class="hljs-keyword">if</span>(igntime &lt; ignitionMap[nidx]){
+                        ignitionMap[nidx] = igntime;
+                      }
+
+                      <span class="hljs-comment">//Update tn</span>
+                      <span class="hljs-keyword">if</span>( igntime &lt; tn )
+                      tn = igntime;
+                    }
+                  }
+                }
+              }
+
+            </code></pre><p>As I said, porting this algorithm to GPUs in a straightforward way resulted in very poor performance. I associated each cell with a GPU thread and ended up with threads writing in each other's memory and dealling with race conditions.</p><p>Also, the process doesn't have a great degree of parallelism because at each time step, very few cells are actually propagating and thus, require computation. Here's the speedups for several scenarios with different values for wind, fuel and moisture:</p><p><img alt="Outer propagation" src="assets/img/fgm/dumb.png" title="Outer Propagation"></p><p>As you can see, very far from the two orders of magnitude in performance increase you usually get with GPUs.</p><h2>Smarter approach</h2><p>The algorithm we've seen mimics the way fire propagates in real life, propagating the fire to adjacent cells, one at the time.</p><p>Ignition times in surrounding cells are calculated, as we have seen, like this:</p><pre><code class="Javascript hljs">
+              igntime = t + ndist[n] / ROS;
+
+              <span class="hljs-keyword">if</span>(igntime &lt; ignitionMap[nidx]){
+                ignitionMap[nidx] = igntime;
+              }
+
+            </code></pre><p>During the process, the ignition time in each cell is continuously updated, so that if two cells propagate to the same cell, the minimum time of the two is considered and stored as the true ignition time.</p><p>Looking at the problem in another way, what we have is a condition that can be stated as follows: the ignition time of each cell, is always the minimum of the set of ignition times accounted from the 8 surrounding cells.</p><p>From this, instead of computing outward ignition times at each neighbour, I compute the ignition time at the inner cell.</p><p><img alt="Outer propagation" src="assets/img/fgm/inner.png" title="Outer Propagation"></p><p>But now the question is, how can I compute ignition times from cells that haven't burned yet?</p><p>The solution is to do it iteratively, ie, to start from a random ignition map and compute each new map function of the previous one, until there is virtually no difference between any two consecutive ignition maps.</p><p></p><div class="fgm-wrapper">   <canvas height="400" id="fgm-parallel" width="400">Consider updating your browser.</canvas> </div> <button class="actionbutton" onclick="smart.run()">►</button><p></p><p>This is how the spatial loop looks like:</p><pre><code class="Javascript hljs">
+              <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">smartSpatialLoop</span>(<span class="hljs-params"></span>)</span>{
+
+                <span class="hljs-keyword">for</span> ( row = <span class="hljs-number">0</span>; row &lt; rows; row++){
+                  <span class="hljs-keyword">for</span> ( col = <span class="hljs-number">0</span>; col &lt; cols; col++){
+                    <span class="hljs-keyword">var</span> idx = col + cols*row;
+
+                    <span class="hljs-comment">//skip ignition cell</span>
+                    <span class="hljs-keyword">if</span> (ignitionMap[idx] === <span class="hljs-number">0</span>)
+                    <span class="hljs-keyword">continue</span>;
+
+                    <span class="hljs-keyword">var</span> minArray = [];
+                    <span class="hljs-keyword">for</span> (<span class="hljs-keyword">var</span> n = <span class="hljs-number">0</span>; n &lt; <span class="hljs-number">8</span>; n++){
+
+                      <span class="hljs-comment">//neighbour index calc</span>
+                      <span class="hljs-keyword">var</span> ncol = col + ncols[n];
+                      <span class="hljs-keyword">var</span> nrow = row + nrows[n];
+                      <span class="hljs-keyword">var</span> nidx = ncol + nrow*cols;
+
+                      <span class="hljs-comment">//Check if neighbour is inbound</span>
+                      <span class="hljs-keyword">if</span> ( !(nrow &gt;= <span class="hljs-number">0</span> &amp;&amp; nrow &lt; rows
+                      &amp;&amp; ncol &gt;= <span class="hljs-number">0</span> &amp;&amp; ncol &lt; cols) )
+                      <span class="hljs-keyword">continue</span>;
+
+                      <span class="hljs-comment">//compute ignition time considering that the</span>
+                      <span class="hljs-comment">//flame moves from the neighbour to the center cell</span>
+                      <span class="hljs-keyword">var</span> igntime = ignitionMap[nidx]
+                      + ndist[n] / rosmap[nidx];
+                      minArray.push(igntime);
+
+                    }
+                    <span class="hljs-comment">//associate the minimum of the ignition times</span>
+                    <span class="hljs-comment">//to the ignition time of the center cell</span>
+                    ignitionMap[idx] = <span class="hljs-built_in">Math</span>.min.apply(<span class="hljs-literal">null</span>, minArray);
+
+                  }
+                }
+
+              }
+            </code></pre><p>The algorithm is much more efficient because I no longer spend most of the time looking for empty cells. Also, because of its parallelism, there's no longer race conditions and consequent serialization. The performance gains are around two orders of magnitude.</p><p><img alt="Outer propagation" src="/assets/img/fgm/smart.png" title="Outer Propagation"></p><p>The two models side by side, with the same iteration interval of 100ms. Notice that the conditions are random, so each time you refresh the page, you'll get a slightly different simulation:</p><p></p><div class="fgm-wrapper" style="display:flex;justify-content:center;align-items:center;width:90%;">   <canvas height="250" id="fgm-parallel-twin" width="250">Consider updating your browser.</canvas>   <canvas height="250" id="fgm-serial-twin" width="250">Consider updating your browser.</canvas> </div> <button class="actionbutton" onclick="smart2.run();dumb2.run();">►</button><p></p><p>And that's it. If you want to know more just follow the link and read the <a href="assets/docs/sousa-etall.pdf" target="_blank">white paper</a>.</p>
+          </article>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <a href="#" class="back-to-top"></a>
+
+  <script src="assets/js/jquery-3.4.1.min.js"></script>
+  <script src="assets/js/masonry.min.js"></script>
+  <script src="assets/js/main.js"></script>
+</body>
+</html>
