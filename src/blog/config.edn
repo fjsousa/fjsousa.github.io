@@ -1,2 +1,6 @@
 {:root "/home/fsousa/src/flaviosousa.co"
- :base-url "https://flaviosousa.co"}
+ :base-url "https://flaviosousa.co"
+ :social {:linkedin "https://www.linkedin.com/in/fjsousa/"
+          :medium "https://medium.com/@fjsousa"
+          :github "https://github.com/fjsousa"
+          :rss "rss.xml"}}

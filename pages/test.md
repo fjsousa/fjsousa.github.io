@@ -1,12 +1,10 @@
-Title: Test
-Date: 2020 10 24
-Tags: blog
-Subtitle: Some content that shows up in the grid
-Thumb: assets/img/remote/desk_s.jpg
-Thumb-alt: A minimalist affordable remote desk setup
-Slug: remote-work
-Link-rewrite: https://datajournal.co.uk
+Title: Seat 45: My Vipassana experience
+Date: 2019 05 06
+Tags: blog, personal
+Subtitle: In September 2018, with 32 years old, single and after having worked for tech startups in London for four years, I decided to sign up for a silent meditation retreat in Chennai, the capital of the Tamil Nadu region in the South West of India.
+Thumb: assets/img/vipassana/thumb.jpg
+Thumb-alt: Posing in front of what it seems to be a Brutalist building in Bangalore.
+Slug: vipassa
+Link-rewrite: https://medium.com/@fjsousa/seat-45-my-vipassana-experience-cfa23869c849
 
-# H1
-
-Bla.
+no content.

@@ -1,6 +1,7 @@
 (ns blog.core
   (:gen-class)
-  (:require [clj-time.core :as t]
+  (:require [blog.template.single-page :as single-page]
+            [clj-time.core :as t]
             [clojure-watch.core :refer [start-watch]]
             [clojure.spec.alpha :as s]
             [clojure.string :as string]
@@ -66,7 +67,9 @@
                         (update-in [:metadata :thumb] first)
                         (update-in [:metadata :thumb-alt] first)
                         (update-in [:metadata :slug] first)
-                        (update-in [:metadata :link-rewrite] first))]
+                        (update-in [:metadata :link-rewrite] first)
+                        (update-in [:content] (fn [[div & rest-el]]
+                                                rest-el)))]
 
     [page-key page-parsed]))
 
@@ -78,33 +81,11 @@
        (map parse-page)
        (into {})))
 
-(defn single-page [[page-key {{:keys [title date tags subtitle thumb thumb-alt slug link-rewrite]} :metadata}]]
-  [page-key
-   [:html
-    {:lang "en"}
-    [:head
-     [:meta
-      {:content "width=device-width, initial-scale=1, maximum-scale=1" :name "viewport"}]
-     [:meta {:name "description" :content "description-copy"}]
-     [:title title]
-     [:link {:href "assets/css/font.css", :rel "stylesheet"}]
-     [:link {:href "assets/css/font-awesome.min.css" :rel "stylesheet"}]
-     [:link {:href "assets/css/style.css" :rel "stylesheet"}]
-     [:link {:href "assets/css/github.css" :rel "stylesheet"}]
-     #_[:link {:type "text/css" :href "//cdn-images.mailchimp.com/embedcode/slim-081711.css" :rel "stylesheet"}]
-     [:script {:src "https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_CHTML"
-               :async "async":type "text/javascript"}]
-     [:script {:src "https://plausible.io/js/plausible.js"
-               :async "defer" :data-domain "datajournal.co.uk"}]]
-
-    [:body
-     [:p page-key]]]])
-
 (defn build-hiccup
   [root]
   (->> root
        parse-markdowns
-       (map single-page)
+       (map single-page/main)
        (into {})))
 
 (defn output!
@@ -127,3 +108,6 @@
 (defn -main
   [& args]
   (watch-fn {}))
+
+(comment
+  (output! (-> "src/blog/config.edn" slurp edn/read-string :root)))
