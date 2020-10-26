@@ -1,4 +1,6 @@
-(ns blog.template.single-page)
+(ns blog.template.single-page
+  (:require [clojure.tools.reader.edn :as edn]
+   ))
 
 (def social (-> "src/blog/config.edn" slurp clojure.tools.reader.edn/read-string :social))
 
@@ -47,7 +49,9 @@
        [:div {:class "row"}
         [:div {:class "col-12 col-sm-6 col-sm-push-3"}
          (into [:article {:class "article-body"}] content)]]]]
-     [:a {:href "#", :class "back-to-top"}]]]])
+     [:a {:href "#", :class "back-to-top"}]]
+    [:script {:type "text/javascript" :src "assets/js/main.js"}]
+    ]])
 
 
 (comment

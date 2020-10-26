@@ -1,10 +1,49 @@
-Title: Seat 45: My Vipassana experience
-Date: 2019 05 06
+Title: Example tile
+Date: 2001 01 01
 Tags: blog, personal
-Subtitle: In September 2018, with 32 years old, single and after having worked for tech startups in London for four years, I decided to sign up for a silent meditation retreat in Chennai, the capital of the Tamil Nadu region in the South West of India.
-Thumb: assets/img/vipassana/thumb.jpg
-Thumb-alt: Posing in front of what it seems to be a Brutalist building in Bangalore.
-Slug: vipassa
-Link-rewrite: https://medium.com/@fjsousa/seat-45-my-vipassana-experience-cfa23869c849
+Subtitle: Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+Thumb: assets/img/vipassana/icon-arrow-top.svg.svg
+Thumb-alt: Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+Slug: test
 
-no content.
+# h1
+
+## h2
+### h3
+#### h4
+
+Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+
+
+
+
+[link](https://www.google.com)
+
+- one
+- two
+- three
+
+Youtube video
+
+<iframe  title="YouTube video player" width="480" height="390" src="https://www.youtube.com/watch?v=RM7R83VQuC8" frameborder="0" allowfullscreen></iframe>
+
+js:
+
+
+```javascript
+var 123
+```
+
+clojure
+
+```clojure
+[:script {:type "text/javascript" :src "assets/src/highlight.pack.js"}]
+[:script "hljs.initHighlightingOnLoad();"]
+```
+
+formulas:
+
+<div class="equation"> $$ t + \frac{l}{ROS}$$ </div>
+
+images
+![A minimalist affordable remote desk setup.](assets/img/remote/desk_s.jpg "A minimalist affordable remote desk setup, complete with a cat holder.")

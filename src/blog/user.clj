@@ -37,6 +37,7 @@
   (println :init)
   (alter-var-root #'app-state (fn [_] {:stop-markdown (watch-markdown)})))
 
+(core/parse-markdowns root)
 (comment
 
   app-state

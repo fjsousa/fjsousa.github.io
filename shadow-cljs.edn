@@ -1,0 +1,26 @@
+;; shadow-cljs configuration
+{:dependencies
+ [[org.clojure/tools.reader "1.3.2"]]
+
+ :nrepl
+ {:port 8202
+  :init-ns blog.shadow-repl}
+
+ :source-paths
+ ["src"]
+
+ :builds
+ {
+  :frontend
+  {:target :browser
+   :output-dir "assets/js"
+   :asset-path "assets/js"
+
+   :modules {:main {:entries [blog.frontend.main]
+                    :init-fn blog.frontend.main/init}}
+   :dev {:compiler-options  {:cross-chunk-method-motion false
+                             :source-map true
+                             :pseudo-names true
+                             :pretty-print  true}}
+   :release {:compiler-options  {:optimizations :advanced
+                                 :cross-chunk-method-motion false}}}}}
