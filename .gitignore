@@ -16,3 +16,4 @@ assets/main.js
 .dir-locals.el
 .lsp/
 node_modules/
+.shadow-cljs/
