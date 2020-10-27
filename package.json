@@ -5,5 +5,8 @@
   "devDependencies": {
     "shadow-cljs": "2.11.5"
   },
-  "dependencies": {}
+  "dependencies": {
+    "highlight.js": "^10.3.1",
+    "highlightjs": "^9.16.2"
+  }
 }

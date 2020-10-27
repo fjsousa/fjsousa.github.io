@@ -12,6 +12,7 @@
      [:meta {:content "width=device-width, initial-scale=1, maximum-scale=1" :name "viewport"}]
      [:meta {:name "description" :content subtitle}]
      [:title title]
+     [:link {:href "assets/css/style-hljs.css", :rel "stylesheet"}]
      [:link {:href "assets/css/main.css", :rel "stylesheet"}]
 
      [:script {:src "https://plausible.io/js/plausible.js"
