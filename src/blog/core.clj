@@ -91,7 +91,7 @@
 (defn output!
   [root]
   (doseq [[k page] (build-hiccup root)]
-   (let [path (str root "/" k ".html")]
+   (let [path (str root "/" (name k) ".html")]
      (spit path (hiccup/html page)))))
 
 (defn watch-fn []

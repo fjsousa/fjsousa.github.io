@@ -25,7 +25,7 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor i
 
 Youtube video
 
-<iframe  title="YouTube video player" width="480" height="390" src="https://www.youtube.com/watch?v=RM7R83VQuC8" frameborder="0" allowfullscreen></iframe>
+<iframe  title="YouTube video player" width="480" height="390" src="https://www.youtube.com/watch?v=RM7R83VQuC8?html5=1" frameborder="0" allowfullscreen></iframe>
 
 js:
 
@@ -43,7 +43,17 @@ clojure
 
 formulas:
 
-<div class="equation"> $$ t + \frac{l}{ROS}$$ </div>
+$$ t + \frac{l}{ROS}$$
+
 
 images
+
 ![A minimalist affordable remote desk setup.](assets/img/remote/desk_s.jpg "A minimalist affordable remote desk setup, complete with a cat holder.")
+
+custom code:
+
+<div class="fgm-wrapper">
+  <canvas id="fgm-serial" width="400" height="400">Consider updating your browser.</canvas>
+</div>
+<button onclick="dumb.run()" class="actionbutton">►</button>
+x
