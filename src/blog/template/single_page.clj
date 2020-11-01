@@ -52,8 +52,8 @@
          (into [:article {:class "article-body"}] content)]]]]
      [:a {:href "#", :class "back-to-top"}]]
     [:script {:type "text/javascript" :src "assets/js/main.js"}]
-    [:script {:src "assets/js/fgm.js"}]
     [:script {:src "assets/js/rags.js"}]
+    [:script {:src "assets/js/fgm-main.js"}]
     [:script {:src "https://polyfill.io/v3/polyfill.min.js?features=es6"}]
     [:script {:id "MathJax-script" :src "https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"}]
     ]])

@@ -56,4 +56,3 @@ custom code:
   <canvas id="fgm-serial" width="400" height="400">Consider updating your browser.</canvas>
 </div>
 <button onclick="dumb.run()" class="actionbutton">►</button>
-x
