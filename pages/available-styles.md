@@ -25,7 +25,7 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor i
 
 Youtube video
 
-<iframe  title="YouTube video player" width="480" height="390" src="https://www.youtube.com/watch?v=RM7R83VQuC8?html5=1" frameborder="0" allowfullscreen></iframe>
+<iframe width="560" height="315" src="https://www.youtube.com/embed/RM7R83VQuC8" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
 
 js:
 
@@ -41,7 +41,7 @@ clojure
 [:script "hljs.initHighlightingOnLoad();"]
 ```
 
-formulas:
+formulas with mathjax:
 
 $$ t + \frac{l}{ROS}$$
 
