@@ -25,7 +25,7 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor i
 
 Youtube video
 
-<a target="_blank" href="https://www.youtube.com/watch?v=RM7R83VQuC8" title="CFD - High-Speed train"><img alt="CFD - High-Speed train" src="http://img.youtube.com/vi/RM7R83VQuC8/0.jpg"></a>
+<a target="_blank" href="https://www.youtube.com/watch?v=RM7R83VQuC8" title="CFD - High-Speed train"><img alt="CFD - High-Speed train" src="assets/img/available-styles/0.jpg"></a>
 
 js:
 
