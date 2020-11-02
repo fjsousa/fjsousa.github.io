@@ -1,6 +1,7 @@
 (ns blog.core
   (:gen-class)
   (:require [blog.template.single-page :as single-page]
+            [blog.template.grid-page :as grid-page]
             [clj-time.core :as t]
             [clojure-watch.core :refer [start-watch]]
             [clojure.spec.alpha :as s]
@@ -81,11 +82,15 @@
        (map parse-page)
        (into {})))
 
+#_(defn add-grid [pages]
+  (assoc pages :index (grid-page/main pages)))
+
 (defn build-hiccup
   [root]
   (->> root
        parse-markdowns
        (map single-page/main)
+       add-grid
        (into {})))
 
 (defn output!
