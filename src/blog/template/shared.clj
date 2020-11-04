@@ -45,8 +45,7 @@
     [:main
      [:div {:class "container"}
       [:div {:class "row"}
-       [:div {:class "col-12 col-sm-6 col-sm-push-3"}
-        content]]]]
+       content]]]
     [:a {:href "#", :class "back-to-top"}]]
    [:script {:type "text/javascript" :src "assets/js/main.js"}]
    [:script {:src "assets/js/rags.js"}]

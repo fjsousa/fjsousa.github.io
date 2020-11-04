@@ -1,10 +1,13 @@
 (ns blog.template.single-page
   (:require [clojure.tools.reader.edn :as edn]
-            [blog.template.shared :as shared]))
+            [blog.template.shared :as shared]
+            [hiccup.core :as hiccup]))
 
 (defn main [[page-key {{:keys [title date tags subtitle thumb thumb-alt slug link-rewrite] :as metadata} :metadata content :content}]]
   [page-key
-   (shared/main metadata (into [:article {:class "article-body"}] content))])
+   (shared/main metadata (into [:div {:class "col-12 col-sm-6 col-sm-push-3"}
+                                [:article {:class "article-body"}]]
+                               content))])
 
 
 (comment
