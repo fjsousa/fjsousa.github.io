@@ -82,8 +82,8 @@
        (map parse-page)
        (into {})))
 
-#_(defn add-grid [pages]
-  (assoc pages :index (grid-page/main pages)))
+(defn add-grid [pages]
+  (assoc pages :index :index #_(grid-page/main pages)))
 
 (defn build-hiccup
   [root]

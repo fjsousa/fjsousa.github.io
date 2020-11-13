@@ -16,7 +16,7 @@
              [:img {:src (format "assets/img/%s/%s" (name page-key) thumb), :alt thumb-alt}]])
           [:div {:class "excerpt"}
            [:p title]]]
-         [:div {:class "lightbox", :data-lightbox (str (+ 1 (count res)))}
+         [:div {:class "lightbox", :data-lightbox (str (+ 1 (/ (count res) 2)))}
           [:div {:class "inner"}
            [:a {:href "#", :class "close"}]
            [:div {:class "container"}

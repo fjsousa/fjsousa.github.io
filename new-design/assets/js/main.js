@@ -6,7 +6,7 @@ $('.masonry-grid').each(function() {
     fitWidth: true,
     gutter: 30
   });
-
+//???????
   container.find('img').one("load", function() {
     container.masonry('layout');
   }).each(function() {
