@@ -4,7 +4,7 @@
             [clojure.tools.reader.edn :as edn]
             [clojure.tools.namespace.repl :as tools-ns]))
 
-(tools-ns/disable-reload!)
+#_(tools-ns/disable-reload!)
 
 (def root (-> "src/blog/config.edn" slurp clojure.tools.reader.edn/read-string :root))
 (def base-url (-> "src/blog/config.edn" slurp clojure.tools.reader.edn/read-string :base-url))

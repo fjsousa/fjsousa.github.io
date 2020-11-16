@@ -8,7 +8,7 @@
 
 
 (defn article
-  [res [page-key {{:keys [title date tags subtitle thumb thumb-alt slug link-rewrite] :as metadata} :metadata content :content}]]
+  [res [page-key {{:keys [title date tags subtitle thumb thumb-alt slug link-rewrite grid-media-item grid-img] :as metadata} :metadata content :content}]]
   (into res
         [[:article {:class "masonry-item article-item open-lightbox", :data-lightbox (str (+ 1 (/ (count res) 2)))}
           (when thumb
@@ -16,6 +16,7 @@
              [:img {:src (format "assets/img/%s/%s" (name page-key) thumb), :alt thumb-alt}]])
           [:div {:class "excerpt"}
            [:p title]]]
+
          [:div {:class "lightbox", :data-lightbox (str (+ 1 (/ (count res) 2)))}
           [:div {:class "inner"}
            [:a {:href "#", :class "close"}]
@@ -25,8 +26,14 @@
               [:article {:class "article-body"}
                [:h2 {:class "h1"}
                 [:strong title]]
+               (when grid-img
+                 [:div {:class "video-wrapper"}
+                  [:img {:src (format "assets/img/%s/%s" (name page-key) grid-img), :alt "article image"}]])
+               (when grid-media-item
+                 [:div {:class "video-wrapper"}
+                  grid-media-item])
                [:p subtitle]]]]]
-           [:a {:href (str page-key ".html"), :class "view-article", :target "_blank"} "Read full article →"]]]]))
+           [:a {:href (str (name page-key) ".html"), :class "view-article", :target "_blank"} "Read full article →"]]]]))
 
 (defn main [pages]
   (let [content [:div {:class "col-12"}
@@ -36,7 +43,7 @@
     (shared/main {:title title :subtitle description} content)]))
 
 
-(->> (main (blog.core/parse-markdowns (-> "src/blog/config.edn" slurp edn/read-string :root)))
+#_(->> (main (blog.core/parse-markdowns (-> "src/blog/config.edn" slurp edn/read-string :root)))
      last
      hiccup.core/html
      (spit (str (-> "src/blog/config.edn" slurp clojure.tools.reader.edn/read-string :root) "/index.html")))

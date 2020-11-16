@@ -15,6 +15,9 @@
                  [org.clojure/tools.namespace "1.0.0"]
                  [clj-rss "0.2.6"]
                  [clojure-watch "LATEST"]]
+  :source-paths     ["src"]
+  :jvm-opts ["-Xmx6g" "-Duser.timezone=UTC"]
+  :java-source-paths ["java"]
   :repl-options {:init-ns blog.user}
   :plugins [[lein-ancient "0.6.15"]]
   :main ^:skip-aot blog.core

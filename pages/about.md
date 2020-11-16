@@ -2,7 +2,6 @@ Title: About
 Date: 2020 10 30
 Tags: page
 Subtitle: Some words
-Slug: about
 
 Some words about me.
 

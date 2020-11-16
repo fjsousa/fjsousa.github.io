@@ -1,10 +1,10 @@
 (ns blog.core
-  (:gen-class)
   (:require [blog.template.single-page :as single-page]
             [blog.template.grid-page :as grid-page]
             [clj-time.core :as t]
             [clojure-watch.core :refer [start-watch]]
             [clojure.spec.alpha :as s]
+            [clojure.set]
             [clojure.string :as string]
             [clojure.tools.reader.edn :as edn]
             [hiccup.core :as hiccup]
@@ -38,12 +38,11 @@
 (s/def ::subtitle not-nil?)
 (s/def ::thumb not-nil?)
 (s/def ::thumb-alt not-nil?)
-(s/def ::slug not-nil?)
 (s/def ::link-rewrite not-nil?)
 (s/def ::html not-nil?)
 
 (s/def ::metadata
-  (s/keys :req-un [::title ::date ::tags ::subtitle ::slug]
+  (s/keys :req-un [::title ::date ::tags ::subtitle]
           :opt-un [::thumb ::thumb-alt ::link-rewrite]))
 
 (s/def :blog/page
@@ -67,8 +66,9 @@
                         (update-in [:metadata :tags] #(string->tags %))
                         (update-in [:metadata :thumb] first)
                         (update-in [:metadata :thumb-alt] first)
-                        (update-in [:metadata :slug] first)
                         (update-in [:metadata :link-rewrite] first)
+                        (update-in [:metadata :grid-img] first)
+                        (update-in [:metadata :grid-media-item] #(when % (-> % first hickory/parse-fragment first hickory/as-hiccup)))
                         (update-in [:content] (fn [[div & rest-el]]
                                                 rest-el)))]
 
@@ -83,32 +83,35 @@
        (into {})))
 
 (defn add-grid [pages]
-  (assoc pages :index :index #_(grid-page/main pages)))
+  (assoc pages :index (grid-page/main pages)))
+
+(defn map-pages [pages]
+  (conj (map single-page/main (dissoc pages :index)) [:index (:index pages)]))
 
 (defn build-hiccup
   [root]
   (->> root
        parse-markdowns
-       (map single-page/main)
        add-grid
+       map-pages
        (into {})))
 
 (defn output!
   [root]
   (doseq [[k page] (build-hiccup root)]
-   (let [path (str root "/" (name k) ".html")]
-     (spit path (hiccup/html page)))))
+    (let [path (str root "/" (name k) ".html")]
+      (spit path (hiccup/html page)))))
 
 (defn watch-fn []
   (let [{:keys [root base-url]} (-> "src/blog/config.edn" slurp edn/read-string)]
-   (println "\nBuilding markdown pages")
-   (output! root) ;;build once, then watch
-   (start-watch [{:path  (str root "/pages/")
-                  :event-types [:create :modify :delete]
-                  :bootstrap (fn [path] (println "Starting to watch " path))
-                  :callback (fn [event filename] (do (output! root)
-                                                     (println (str "File " filename " with event " event))))
-                  :options {:recursive true}}])))
+    (println "\nBuilding markdown pages")
+    (output! root) ;;build once, then watch
+    (start-watch [{:path  (str root "/pages/")
+                   :event-types [:create :modify :delete]
+                   :bootstrap (fn [path] (println "Starting to watch " path))
+                   :callback (fn [event filename] (do (output! root)
+                                                      (println (str "File " filename " with event " event))))
+                   :options {:recursive true}}])))
 
 (defn -main
   [& args]

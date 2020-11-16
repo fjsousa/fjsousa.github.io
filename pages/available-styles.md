@@ -4,7 +4,8 @@ Tags: blog, personal
 Subtitle: Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
 Thumb: 0.jpg
 Thumb-alt: Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-Slug: test
+Grid-img: 0.jpg
+Grid-media-item: <a target="_blank" href="https://www.youtube.com/watch?v=RM7R83VQuC8" title="CFD - High-Speed train"><img alt="CFD - High-Speed train" src="assets/img/available-styles/0.jpg"></a>
 
 # h1
 
