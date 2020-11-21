@@ -1,6 +1,11 @@
 (ns blog.template.shared)
 
-(def social (-> "src/blog/config.edn" slurp clojure.tools.reader.edn/read-string :social))
+(def config (-> "src/blog/config.edn" slurp clojure.tools.reader.edn/read-string))
+
+(def social (:social config))
+(def title )
+(def sub-title (:sub-title config))
+(def description (:description config))
 
 (defn main [{:keys [title date tags subtitle thumb thumb-alt slug link-rewrite]} content]
   [:html {:lang "en" :dir "ltr"}
@@ -23,13 +28,13 @@
        [:div {:class "col-12 col-sm-4 col-md-3"}
         [:p {:class "h1"}
          [:strong
-          [:a {:href "/"} "flaviosousa.co"]]]
-        [:p "Flávio Sousa - Software Engineer"]]
+          [:a {:href "/"} (:title config)]]]
+        [:p (:sub-title config)]]
        [:div {:class "col-12 col-sm-4 col-md-5"}
         [:div {:class "about"}
          [:p
-          [:i "Sort the about in config.edn"
-           [:br]"another line for the about."]]]]
+          [:i "Personal website."
+           [:br]"Past projects, bit of blogging."]]]]
        [:div {:class "col-12 col-sm-4"}
         [:div {:class "social-links"}
          [:a {:href (:medium social), :target "_blank"}
@@ -39,9 +44,7 @@
          [:a {:href (:twitter social), :target "_blank"}
           [:img {:src "assets/img/icon-twitter.svg"}]]
          [:a {:href (:github social), :target "_blank"}
-          [:img {:src "assets/img/icon-github.svg"}]]
-         [:a {:href (:rss social), :target "_blank"}
-          [:img {:src "assets/img/icon-rss.svg"}]]]]]]]
+          [:img {:src "assets/img/icon-github.svg"}]]]]]]]
     [:main
      [:div {:class "container"}
       [:div {:class "row"}

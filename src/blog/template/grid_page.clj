@@ -8,7 +8,7 @@
 
 
 (defn article
-  [res [page-key {{:keys [title date tags subtitle thumb thumb-alt slug link-rewrite grid-media-item grid-img] :as metadata} :metadata content :content}]]
+  [res [page-key {{:keys [title date tags subtitle thumb thumb-alt slug link-rewrite grid-media-item grid-img link-copy] :as metadata} :metadata content :content}]]
   (into res
         [[:article {:class "masonry-item article-item open-lightbox", :data-lightbox (str (+ 1 (/ (count res) 2)))}
           (when thumb
@@ -33,7 +33,14 @@
                  [:div {:class "video-wrapper"}
                   grid-media-item])
                [:p subtitle]]]]]
-           [:a {:href (str (name page-key) ".html"), :class "view-article", :target "_blank"} "Read full article →"]]]]))
+           (let [options (cond-> {:class "view-article"}
+                           link-rewrite              (assoc :href link-rewrite
+                                                            :target "_blank")
+                           (nil? link-rewrite) (assoc :href (str (name page-key) ".html")))
+                 copy (if link-copy
+                        (str link-copy " →")
+                        "Read full article →")]
+               [:a options copy])]]]))
 
 (defn main [pages]
   (let [content [:div {:class "col-12"}

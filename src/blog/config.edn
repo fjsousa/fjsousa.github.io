@@ -3,4 +3,9 @@
  :social {:linkedin "https://www.linkedin.com/in/fjsousa/"
           :medium "https://medium.com/@fjsousa"
           :github "https://github.com/fjsousa"
-          :rss "rss.xml"}}
+          :rss "rss.xml"}
+ :title "flaviosousa.co"
+ :sub-title "Software Engineer"
+ :description "Flavio Sousa personal website. Past projects, bit of blogging."
+ :short-about "Flavio Sousa personal website. Past projects, bit of blogging."
+ }

@@ -40,10 +40,12 @@
 (s/def ::thumb-alt not-nil?)
 (s/def ::link-rewrite not-nil?)
 (s/def ::html not-nil?)
+(s/def ::link-rewrite not-nil?)
+(s/def ::link-copy not-nil?)
 
 (s/def ::metadata
   (s/keys :req-un [::title ::date ::tags ::subtitle]
-          :opt-un [::thumb ::thumb-alt ::link-rewrite]))
+          :opt-un [::thumb ::thumb-alt ::link-rewrite ::link-rewrite ::link-copy]))
 
 (s/def :blog/page
   (s/keys :opt-un []
@@ -68,6 +70,8 @@
                         (update-in [:metadata :thumb-alt] first)
                         (update-in [:metadata :link-rewrite] first)
                         (update-in [:metadata :grid-img] first)
+                        (update-in [:metadata :link-rewrite] identity)
+                        (update-in [:metadata :link-copy] #(when % (first %)))
                         (update-in [:metadata :grid-media-item] #(when % (-> % first hickory/parse-fragment first hickory/as-hiccup)))
                         (update-in [:content] (fn [[div & rest-el]]
                                                 rest-el)))]
