@@ -5,7 +5,8 @@
           :github "https://github.com/fjsousa"
           :rss "rss.xml"}
  :title "flaviosousa.co"
+ :head-title "flaviosousa.co, Software Engineer"
  :sub-title "Software Engineer"
- :description "Flavio Sousa personal website. Past projects, bit of blogging."
+ :meta-description "Personal website. Past projects, bit of blogging."
  :short-about "Flavio Sousa personal website. Past projects, bit of blogging."
  }

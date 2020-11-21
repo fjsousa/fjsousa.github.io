@@ -3,9 +3,6 @@
 (def config (-> "src/blog/config.edn" slurp clojure.tools.reader.edn/read-string))
 
 (def social (:social config))
-(def title )
-(def sub-title (:sub-title config))
-(def description (:description config))
 
 (defn main [{:keys [title date tags subtitle thumb thumb-alt slug link-rewrite]} content]
   [:html {:lang "en" :dir "ltr"}

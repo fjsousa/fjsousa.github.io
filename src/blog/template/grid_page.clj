@@ -2,10 +2,7 @@
   (:require [clojure.tools.reader.edn :as edn]
             [blog.template.shared :as shared]))
 
-(def title "Index grid title - add me to config")
-;;todo change other places subtitle->description
-(def description "Index grid description - add me to config")
-
+(def config (-> "src/blog/config.edn" slurp clojure.tools.reader.edn/read-string))
 
 (defn article
   [res [page-key {{:keys [title date tags subtitle thumb thumb-alt slug link-rewrite grid-media-item grid-img link-copy] :as metadata} :metadata content :content}]]
@@ -46,11 +43,9 @@
   (let [content [:div {:class "col-12"}
                  (into
                   [:div {:class "masonry-grid articles-grid"}] (reduce article [] pages))]]
-   [:index
-    (shared/main {:title title :subtitle description} content)]))
+   (shared/main {:title (:head-title config) :subtitle (:meta-description config)} content)))
 
 
 #_(->> (main (blog.core/parse-markdowns (-> "src/blog/config.edn" slurp edn/read-string :root)))
-     last
-     hiccup.core/html
+       hiccup.core/html
      (spit (str (-> "src/blog/config.edn" slurp clojure.tools.reader.edn/read-string :root) "/index.html")))
