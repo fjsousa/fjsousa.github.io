@@ -119,7 +119,7 @@
 
 (defn -main
   [& args]
-  (watch-fn {}))
+  (watch-fn ))
 
 (comment
   (output! (-> "src/blog/config.edn" slurp edn/read-string :root)))

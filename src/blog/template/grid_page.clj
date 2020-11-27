@@ -1,6 +1,7 @@
 (ns blog.template.grid-page
   (:require [clojure.tools.reader.edn :as edn]
-            [blog.template.shared :as shared]))
+            [blog.template.shared :as shared]
+            [clj-time.format :as f]))
 
 (def config (-> "src/blog/config.edn" slurp clojure.tools.reader.edn/read-string))
 
@@ -12,7 +13,8 @@
             [:figure
              [:img {:src (format "assets/img/%s/%s" (name page-key) thumb), :alt thumb-alt}]])
           [:div {:class "excerpt"}
-           [:p title]]]
+           [:p title
+            [:br][:span {:style "color: gray; font-size: 0.8rem"} (f/unparse  (f/formatter "yyyy-MM-dd") date)]]]]
 
          [:div {:class "lightbox", :data-lightbox (str (+ 1 (/ (count res) 2)))}
           [:div {:class "inner"}
