@@ -6,8 +6,8 @@
 (defn main [[page-key {{:keys [title date tags subtitle thumb thumb-alt link-rewrite] :as metadata} :metadata content :content}]]
   [page-key
    (shared/main metadata (into [:div {:class "col-12 col-sm-6 col-sm-push-3"}
-                                [:article {:class "article-body"}]]
-                               content))])
+                                [:article {:class "article-body"}
+                                 content]]))])
 
 
 (comment
