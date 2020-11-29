@@ -53,7 +53,9 @@ clojure
 
 formulas with mathjax:
 
-$$ t + \frac{l}{ROS}$$
+<p class="mathjax">t + \frac{l}{ROS}</p>
+
+inline:  <span class="mathjax">t + \frac{l}{ROS}</span>
 
 
 images

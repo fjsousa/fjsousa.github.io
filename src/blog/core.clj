@@ -79,12 +79,21 @@
         code (-> form (nth 2) last)]
     (update-in form [2 2] #(highlight-parse language %))))
 
+(defn mathjax [form]
+  (let [p? (= :p (first form))]
+    ;;todo: move node path to config
+    (update-in form [2] #(:out (sh "/home/fsousa/.nvm/versions/node/v14.15.1/bin/node" "./node_modules/mathjax-node-cli/bin/tex2svg" %)))))
+
+#_(blog.core/mathjax [:p {:class "mathjax"} "t + \\frac{l}{ROS}"])
+#_(blog.core/mathjax [:span {:class "mathjax"} "t + \\frac{l}{ROS}"])
+
 (defn walk-fn [form]
-  (if (and (vector? form)
+  (cond (and (vector? form)
              (= :pre (first form))
-             (= :code (-> form (nth 2) first)))
-    (highlight-code form)
-    form))
+             (= :code (-> form (nth 2) first))) (highlight-code form)
+        (and (vector? form)
+             (= "mathjax" (-> form (nth 1) :class))) (mathjax form)
+    :else form))
 
 (defn parse-page
   [page]
@@ -117,7 +126,9 @@
 
 (comment (md/md-to-html-string-with-meta (slurp (first (glob/glob (str (-> "src/blog/config.edn" slurp edn/read-string :root) "/pages/available-styles.md")))) :inhibit-separator "%")
 
- (parse-page (first (glob/glob (str (-> "src/blog/config.edn" slurp edn/read-string :root) "/pages/available-styles.md")))))
+(parse-page (first (glob/glob (str (-> "src/blog/config.edn" slurp edn/read-string :root) "/pages/available-styles.md")))))
+
+(parse-page (first (glob/glob (str (-> "src/blog/config.edn" slurp edn/read-string :root) "/pages/available-styles.md"))))
 
 
 (defn parse-markdowns

@@ -13,7 +13,8 @@
     [:title title]
     [:link {:href "assets/css/style-hljs.css", :rel "stylesheet"}]
     [:link {:href "assets/css/main.css", :rel "stylesheet"}]
-
+    [:link {:href "https://fonts.gstatic.com" :rel "preconnect"}]
+    [:link {:href "https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,700;1,400;1,700&family=Ubuntu+Mono:ital,wght@0,400;0,700;1,400;1,700&display=swap" , :rel "stylesheet"}]
     [:script {:src "https://plausible.io/js/plausible.js"
               :async "defer" :data-domain "flaviosousa.co"}]]
 
@@ -48,8 +49,5 @@
        content]]]
     [:a {:href "#", :class "back-to-top"}]]
    [:script {:type "text/javascript" :src "assets/js/main.js"}]
-   [:script {:src "assets/js/rags.js"}]
-   [:script {:src "assets/js/fgm-main.js"}]
-   [:script {:src "https://polyfill.io/v3/polyfill.min.js?features=es6"}]
-   [:script {:id "MathJax-script" :src "https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"}]
-   ])
+   [:script {:type "text/javascript" :src "assets/js/rags.js"}]
+   [:script {:type "text/javascript" :src "assets/js/fgm-main.js"}]])
