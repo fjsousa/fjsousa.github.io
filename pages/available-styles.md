@@ -32,7 +32,12 @@ js:
 
 
 ```javascript
-var 123
+var a = 123;
+function foo (a) {
+
+    a = a;
+
+}
 ```
 
 clojure

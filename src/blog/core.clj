@@ -10,7 +10,9 @@
             [hiccup.core :as hiccup]
             [hickory.core :as hickory]
             [markdown.core :as md]
-            [org.satta.glob :as glob]))
+            [org.satta.glob :as glob]
+            [clojure.java.shell :refer [sh]]
+            [clojure.walk :refer [postwalk]]))
 
 (defn get-pages
   "root: markdown folder path. returns a glob - java.io object"
@@ -51,6 +53,36 @@
   (s/keys :opt-un []
           :req-un [::metadata ::html]))
 
+(defn highlight-parse
+  [language code]
+  (let [code (-> code (clojure.string/escape char-escape-string)
+                 (clojure.string/replace  "'" "\\'")
+                 (clojure.string/replace "&quot;" "\\\""))
+        raw-string (str "console.log(require('highlightjs').highlight('" language "','" code "').value)")
+        {:keys [out exit err]} (sh "node" "-e" raw-string)
+        _ (when (not (= 0 exit))
+            (do (println err)
+                (throw (Exception. "Error highlighting code. Check logs"))))]
+
+    (->>
+     out
+     hickory/parse-fragment
+     (mapv hickory/as-hiccup) concat (into [:div]))))
+
+
+(defn highlight-code [form]
+  (let [language (-> form (nth 2) second :class)
+        language (or language "bash" #_"javascript")
+        code (-> form (nth 2) last)]
+    (update-in form [2 2] #(highlight-parse language %))))
+
+(defn walk-fn [form]
+  (if (and (vector? form)
+             (= :pre (first form))
+             (= :code (-> form (nth 2) first)))
+    (highlight-code form)
+    form))
+
 (defn parse-page
   [page]
   (let [page-key (->> page .getName (re-find #"([a-z\d-]+)") last keyword)
@@ -60,7 +92,9 @@
         _ (when (not (s/valid? :blog/page page-val))
             (do (println (s/explain :blog/page page-val))
                 (throw (Exception. (format "Markdown not valid for '%s' Check logs." page-key)))))
-        page-parsed (-> page-val (update-in [:html] #(->> % hickory/parse-fragment (mapv hickory/as-hiccup) concat (into [:div])))
+        page-parsed (-> page-val
+                        (update-in [:html] #(->> % hickory/parse-fragment (mapv hickory/as-hiccup) concat (into [:div])))
+                        (update-in [:html] #(postwalk walk-fn %))
                         (clojure.set/rename-keys {:html :content})
                         (update-in [:metadata :title]  first)
                         (update-in [:metadata :subtitle] first)
@@ -78,6 +112,10 @@
 
     [page-key page-parsed]))
 
+(md/md-to-html-string-with-meta (slurp (first (glob/glob (str (-> "src/blog/config.edn" slurp edn/read-string :root) "/pages/available-styles.md")))) :inhibit-separator "%")
+(parse-page (first (glob/glob (str (-> "src/blog/config.edn" slurp edn/read-string :root) "/pages/available-styles.md"))))
+
+
 (defn parse-markdowns
   "Loads markdown files into an unparsed datastructure
   {:some-blog-post {:title :subtitle :tags ...}"
@@ -85,6 +123,7 @@
   (->> (get-pages root)
        (map parse-page)
        (into {})))
+
 
 (defn add-grid [pages]
   (assoc pages :index (grid-page/main pages)))

@@ -1,6 +1,6 @@
-(ns blog.frontend.main
-  (:require ["highlightjs" :as hljs]
-            ["masonry-layout" :as masonry]))
+(ns blog.frontend.main)
+;;require module as
+;;(:require ["highlightjs" :as hljs])
 ;;load script as
 ;;["/js/file.js" :as dep]
 
@@ -24,10 +24,8 @@
                                                                                      ;;before being passed to the elements below
                                                                                      (-> el .-classList (.remove "open"))))))))
 (defn init-grid []
-  (let [grid-elem (.querySelector js/document ".masonry-grid")
-        lightboxes (.getElementsByClassName js/document "open-lightbox")
+  (let [lightboxes (.getElementsByClassName js/document "open-lightbox")
         close-elem (.getElementsByClassName js/document "close")]
-    #_(new masonry grid-elem #js {:itemSelector ".masonry-item", :fitWidth true, :gutter 30})
     (-> lightboxes js/Array.from (.forEach (fn [el]
                                              (.addEventListener el "click" (open-modal-evl el)))))
     (-> close-elem js/Array.from (.forEach (fn [el]
@@ -37,5 +35,4 @@
 
 
 (defn ^:export init []
-  (.initHighlightingOnLoad hljs)
   (init-grid))

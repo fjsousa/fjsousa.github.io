@@ -22,3 +22,12 @@ Use `npx live-server` for instance on root to serve html files.
 
 - [MathJax 3](https://www.mathjax.org) for formulas
 - [highlight.js](https://highlightjs.org) for code highlighting
+
+### tools
+
+`npx shadow-cljs run shadow.cljs.build-report frontend report.html`
+`npx sass sass/main.scss assets/css/main.css`
+
+
+masonry-grid column-count 3
+width of articles-item: 100%
