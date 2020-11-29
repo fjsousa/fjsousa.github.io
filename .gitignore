@@ -17,3 +17,5 @@ assets/main.js
 .lsp/
 node_modules/
 .shadow-cljs/
+.sass-cache/
+report.html
