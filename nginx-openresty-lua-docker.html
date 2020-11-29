@@ -10,14 +10,14 @@
 }
 
 </div></code></pre><p>This configuration would listen in port <code>80</code> and proxy <code>some.website.com</code> according to some custom logic in <code>main.lua</code>. This extra directive is the basic additional sintax you need to add to your existing Nginx server configuration. If your OpenResty is installed locally, you can start adding your Lua logic and you'll just have to restart Nginx to pick up the changes.</p><p>The setup works fine until you realize you have to go through the same process in someone Elise's machine. After spending more time than you'd like to admite trying to get OpenResty compilation flags right, containerization starts to seem like something that would solve a lot of the development problems, instead of being just an extra step for deployment.</p><h2>2 Dockerfile</h2><p>I've prepared an <a href="https://hub.docker.com/r/fjsousa/nginx-openresty/">OpenResty base image</a> based on Alpine Linux. The image has around 17 MB and is based on this other <a href="https://github.com/ficusio/openresty/blob/master/alpine/Dockerfile">OpenResty Image</a>, but with LuaRocks, Lua's package manager, and an up to date version of OpenResty. This is the breakdown of the Dockerfile. You can find the complete Dockerfile, as well as the rest of the <a href="https://github.com/fjsousa/openresty-smart-proxy">Nginx example app here</a>.</p><h3>Install Lua dependencies</h3><pre><code><div>RUN apk update \
- &amp;amp;&amp;amp; apk add --virtual build-deps \
+ &amp;&amp; apk add --virtual build-deps \
     unzip wget curl gcc make musl-dev \
     pcre-dev openssl-dev zlib-dev \
     ncurses-dev readline-dev perl \
-  &amp;amp;&amp;amp; <span class="hljs-built_in">echo</span> <span class="hljs-string">&quot;==&amp;gt; Installing Lua dependencies...&quot;</span> \
- &amp;amp;&amp;amp; luarocks install busted \
- &amp;amp;&amp;amp; luarocks install lua-resty-http \
- &amp;amp;&amp;amp; rm -rf /root/luarocks
+  &amp;&amp; <span class="hljs-built_in">echo</span> <span class="hljs-string">&quot;==&gt; Installing Lua dependencies...&quot;</span> \
+ &amp;&amp; luarocks install busted \
+ &amp;&amp; luarocks install lua-resty-http \
+ &amp;&amp; rm -rf /root/luarocks
 
 </div></code></pre><p>Because we're using a lightweight Alpine Linux base image, we'll have to install some dependencies taken for granted in other systems, like <code>gcc</code>, <code>curl</code> and <code>wget</code>. We name them <code>build-deps</code> so that we can refer to them later and delete them, in case you want a production ready system.</p><p>The other dependencies are Lua packages for unit testing, <code>busted</code>, and a http client, <code>lua-resty-http</code>.</p><h3>Carry over assets, Nginx config files, Lua files</h3><pre><code><div>RUN mkdir -p /opt/openresty/nginx/nginx-server/logs
 COPY nginx-server/conf /opt/openresty/nginx/nginx-server/conf
@@ -25,7 +25,7 @@ COPY nginx-server/lualib /opt/openresty/nginx/nginx-server/lualib
 COPY public /opt/openresty/nginx/nginx-server/public
 
 
-</div></code></pre><p>This copies all relevant files to the container.</p><h3>Set env vars and replace templates</h3><pre><code><div>RUN <span class="hljs-built_in">echo</span> <span class="hljs-string">&quot;==&amp;gt; Replacing nginx *.tmpl files...&quot;</span>
+</div></code></pre><p>This copies all relevant files to the container.</p><h3>Set env vars and replace templates</h3><pre><code><div>RUN <span class="hljs-built_in">echo</span> <span class="hljs-string">&quot;==&gt; Replacing nginx *.tmpl files...&quot;</span>
 ENV NGINX_CONFIG /opt/openresty/nginx/nginx-server/conf/nginx
 ENV SERVER_CONFIG /opt/openresty/nginx/nginx-server/conf/servers/server
 ENV COOKIE_NAME Token
@@ -33,10 +33,10 @@ ENV URL http://www.theuselessweb.com/
 ENV COOKIE_DOMAIN localhost
 
 </div></code></pre><pre><code><div>RUN cp <span class="hljs-string">&quot;<span class="hljs-variable">$NGINX_CONFIG</span>&quot;</span>.tmpl <span class="hljs-string">&quot;<span class="hljs-variable">$NGINX_CONFIG</span>&quot;</span>.conf \
- &amp;amp;&amp;amp; cp <span class="hljs-string">&quot;<span class="hljs-variable">$SERVER_CONFIG</span>&quot;</span>.tmpl <span class="hljs-string">&quot;<span class="hljs-variable">$SERVER_CONFIG</span>&quot;</span>.conf \
- &amp;amp;&amp;amp; sed -i -- <span class="hljs-string">&quot;s|{{COOKIE_NAME}}|<span class="hljs-variable">$COOKIE_NAME</span>|g&quot;</span> <span class="hljs-variable">$NGINX_CONFIG</span>.conf \
- &amp;amp;&amp;amp; sed -i -- <span class="hljs-string">&quot;s|{{COOKIE_DOMAIN}}|<span class="hljs-variable">$COOKIE_DOMAIN</span>|g&quot;</span> <span class="hljs-variable">$NGINX_CONFIG</span>.conf \
- &amp;amp;&amp;amp; sed -i -- <span class="hljs-string">&quot;s|{{URL}}|<span class="hljs-variable">$URL</span>|g&quot;</span> <span class="hljs-variable">$SERVER_CONFIG</span>.conf
+ &amp;&amp; cp <span class="hljs-string">&quot;<span class="hljs-variable">$SERVER_CONFIG</span>&quot;</span>.tmpl <span class="hljs-string">&quot;<span class="hljs-variable">$SERVER_CONFIG</span>&quot;</span>.conf \
+ &amp;&amp; sed -i -- <span class="hljs-string">&quot;s|{{COOKIE_NAME}}|<span class="hljs-variable">$COOKIE_NAME</span>|g&quot;</span> <span class="hljs-variable">$NGINX_CONFIG</span>.conf \
+ &amp;&amp; sed -i -- <span class="hljs-string">&quot;s|{{COOKIE_DOMAIN}}|<span class="hljs-variable">$COOKIE_DOMAIN</span>|g&quot;</span> <span class="hljs-variable">$NGINX_CONFIG</span>.conf \
+ &amp;&amp; sed -i -- <span class="hljs-string">&quot;s|{{URL}}|<span class="hljs-variable">$URL</span>|g&quot;</span> <span class="hljs-variable">$SERVER_CONFIG</span>.conf
 
 
 </div></code></pre><p>We keep all the configuration variables in one place by defining environment variables in the Dockerfile and using a template approach. Later, we rename the files and replace the placeholders using <code>sed</code>.</p><h3>Delete build dependencies and run Nginx</h3><p>If you want to make the image as small as possible and ready for production, delete the build dependencies, otherwise keep them. These basic commands will be useful for debugging.</p><pre><code><div>RUN apk del build-deps
@@ -106,7 +106,7 @@ ngx.log(ngx.INFO, <span class="hljs-string">&quot;Checking validity for auth tok
   ngx.log(ngx.INFO, <span class="hljs-string">&quot;Auth token not valid: &quot;</span> .. user_code)
   ngx.status = 401
   ngx.header[<span class="hljs-string">&quot;Content-type&quot;</span>] = <span class="hljs-string">&quot;text/html&quot;</span>
-  ngx.say(<span class="hljs-string">&quot;Unauthorized. Take me to the &amp;lt;a href=\&quot;/\&quot;&amp;gt;main page.&amp;lt;/a&amp;gt;&quot;</span>)
+  ngx.say(<span class="hljs-string">&quot;Unauthorized. Take me to the &lt;a href=\&quot;/\&quot;&gt;main page.&lt;/a&gt;&quot;</span>)
   <span class="hljs-built_in">return</span>
 end
 

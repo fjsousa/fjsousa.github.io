@@ -7,15 +7,15 @@
 
    <span class="hljs-comment">//Spatial loop that looks for active cells,</span>
    <span class="hljs-comment">//ie, cells with ignition time = t</span>
-   <span class="hljs-keyword">for</span> ( row = <span class="hljs-number">0</span>; row &amp;lt; rows; row++){
-     <span class="hljs-keyword">for</span> ( col = <span class="hljs-number">0</span>; col &amp;lt; cols; col++){
+   <span class="hljs-keyword">for</span> ( row = <span class="hljs-number">0</span>; row &lt; rows; row++){
+     <span class="hljs-keyword">for</span> ( col = <span class="hljs-number">0</span>; col &lt; cols; col++){
        <span class="hljs-keyword">var</span> idx = col + cols*row;
 
        <span class="hljs-comment">//Update tn, so that tn is the minimum</span>
        <span class="hljs-comment">//ignition time for all cells,</span>
        <span class="hljs-comment">//in a given iteration</span>
-       <span class="hljs-keyword">if</span> ( ignitionMap[idx] &amp;gt; t &amp;amp;&amp;amp;
-         tn &amp;gt; ignitionMap[idx] ){
+       <span class="hljs-keyword">if</span> ( ignitionMap[idx] &gt; t &amp;&amp;
+         tn &gt; ignitionMap[idx] ){
 
          tn = ignitionMap[idx];
          <span class="hljs-keyword">continue</span>;
@@ -26,7 +26,7 @@
          <span class="hljs-keyword">continue</span>;
 
        <span class="hljs-comment">//propagate fire for all 8 neighours</span>
-       <span class="hljs-keyword">for</span> (<span class="hljs-keyword">var</span> n = <span class="hljs-number">0</span>; n &amp;lt; <span class="hljs-number">8</span>; n++){
+       <span class="hljs-keyword">for</span> (<span class="hljs-keyword">var</span> n = <span class="hljs-number">0</span>; n &lt; <span class="hljs-number">8</span>; n++){
 
          <span class="hljs-comment">//neighbour index calc</span>
          <span class="hljs-keyword">var</span> ncol = col + ncols[n];
@@ -34,12 +34,12 @@
          <span class="hljs-keyword">var</span> nidx = ncol + nrow*cols;
 
          <span class="hljs-comment">//Check if neighbour is inbound</span>
-         <span class="hljs-keyword">if</span> ( !(nrow &amp;gt;= <span class="hljs-number">0</span> &amp;amp;&amp;amp; nrow &amp;lt; rows &amp;amp;&amp;amp;
-           ncol &amp;gt;= <span class="hljs-number">0</span> &amp;amp;&amp;amp; ncol &amp;lt; cols) )
+         <span class="hljs-keyword">if</span> ( !(nrow &gt;= <span class="hljs-number">0</span> &amp;&amp; nrow &lt; rows &amp;&amp;
+           ncol &gt;= <span class="hljs-number">0</span> &amp;&amp; ncol &lt; cols) )
            <span class="hljs-keyword">continue</span>;
 
          <span class="hljs-comment">// skip if cell has already burned</span>
-         <span class="hljs-keyword">if</span> ( ignitionMap[nidx] &amp;lt; t )
+         <span class="hljs-keyword">if</span> ( ignitionMap[nidx] &lt; t )
            <span class="hljs-keyword">continue</span>;
 
          <span class="hljs-comment">//Compute neighbour cell ignition time,</span>
@@ -50,12 +50,12 @@
 
          <span class="hljs-comment">//Update ignition time in the map only</span>
          <span class="hljs-comment">//if the the current time is smaller</span>
-         <span class="hljs-keyword">if</span>(igntime &amp;lt; ignitionMap[nidx]){
+         <span class="hljs-keyword">if</span>(igntime &lt; ignitionMap[nidx]){
            ignitionMap[nidx] = igntime;
          }
 
          <span class="hljs-comment">//Update tn</span>
-         <span class="hljs-keyword">if</span>( igntime &amp;lt; tn )
+         <span class="hljs-keyword">if</span>( igntime &lt; tn )
            tn = igntime;
        }
      }
@@ -66,7 +66,7 @@
 </div></code></pre><p>As I said, porting this algorithm to GPUs in a straightforward way resulted in very poor performance. I associated each cell with a GPU thread and ended up with threads writing in each other's memory and dealling with race conditions.</p><p>Also, the process doesn't have a great degree of parallelism because at each time step, very few cells are actually propagating and thus, require computation. Here's the speedups for several scenarios with different values for wind, fuel and moisture:</p><p><img alt="Outer propagation" src="assets/img/fgm/dumb.png" title="Outer Propagation" /></p><p>As you can see, very far from the two orders of magnitude in performance increase you usually get with GPUs.</p><h2>Smarter approach</h2><p>The algorithm we've seen mimics the way fire propagates in real life, propagating the fire to adjacent cells, one at the time.</p><p>Ignition times in surrounding cells are calculated, as we have seen, like this:</p><pre><code class="Javascript"><div>
   igntime = t + ndist[n] / ROS;
 
-  <span class="hljs-keyword">if</span>(igntime &amp;lt; ignitionMap[nidx]){
+  <span class="hljs-keyword">if</span>(igntime &lt; ignitionMap[nidx]){
     ignitionMap[nidx] = igntime;
   }
 
@@ -74,8 +74,8 @@
 </div></code></pre><p>During the process, the ignition time in each cell is continuously updated, so that if two cells propagate to the same cell, the minimum time of the two is considered and stored as the true ignition time.</p><p>Looking at the problem in another way, what we have is a condition that can be stated as follows: the ignition time of each cell, is always the minimum of the set of ignition times accounted from the 8 surrounding cells.</p><p>From this, instead of computing outward ignition times at each neighbour, I compute the ignition time at the inner cell.</p><p><img alt="Outer propagation" src="assets/img/fgm/inner.png" title="Outer Propagation" /></p><p>But now the question is, how can I compute ignition times from cells that haven't burned yet?</p><p>The solution is to do it iteratively, ie, to start from a random ignition map and compute each new map function of the previous one, until there is virtually no difference between any two consecutive ignition maps.</p><p></p><div class="fgm-wrapper">   <canvas height="400" id="fgm-parallel" width="400">Consider updating your browser.</canvas> </div> <button class="actionbutton" onclick="smart.run()">►</button><p></p><p>This is how the spatial loop looks like:</p><pre><code class="Javascript"><div>
 <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">smartSpatialLoop</span>(<span class="hljs-params"></span>)</span>{
 
-  <span class="hljs-keyword">for</span> ( row = <span class="hljs-number">0</span>; row &amp;lt; rows; row++){
-    <span class="hljs-keyword">for</span> ( col = <span class="hljs-number">0</span>; col &amp;lt; cols; col++){
+  <span class="hljs-keyword">for</span> ( row = <span class="hljs-number">0</span>; row &lt; rows; row++){
+    <span class="hljs-keyword">for</span> ( col = <span class="hljs-number">0</span>; col &lt; cols; col++){
       <span class="hljs-keyword">var</span> idx = col + cols*row;
 
       <span class="hljs-comment">//skip ignition cell</span>
@@ -83,7 +83,7 @@
         <span class="hljs-keyword">continue</span>;
 
       <span class="hljs-keyword">var</span> minArray = [];
-      <span class="hljs-keyword">for</span> (<span class="hljs-keyword">var</span> n = <span class="hljs-number">0</span>; n &amp;lt; <span class="hljs-number">8</span>; n++){
+      <span class="hljs-keyword">for</span> (<span class="hljs-keyword">var</span> n = <span class="hljs-number">0</span>; n &lt; <span class="hljs-number">8</span>; n++){
 
         <span class="hljs-comment">//neighbour index calc</span>
         <span class="hljs-keyword">var</span> ncol = col + ncols[n];
@@ -91,8 +91,8 @@
         <span class="hljs-keyword">var</span> nidx = ncol + nrow*cols;
 
         <span class="hljs-comment">//Check if neighbour is inbound</span>
-        <span class="hljs-keyword">if</span> ( !(nrow &amp;gt;= <span class="hljs-number">0</span> &amp;amp;&amp;amp; nrow &amp;lt; rows
-          &amp;amp;&amp;amp; ncol &amp;gt;= <span class="hljs-number">0</span> &amp;amp;&amp;amp; ncol &amp;lt; cols) )
+        <span class="hljs-keyword">if</span> ( !(nrow &gt;= <span class="hljs-number">0</span> &amp;&amp; nrow &lt; rows
+          &amp;&amp; ncol &gt;= <span class="hljs-number">0</span> &amp;&amp; ncol &lt; cols) )
           <span class="hljs-keyword">continue</span>;
 
         <span class="hljs-comment">//compute ignition time considering that the</span>

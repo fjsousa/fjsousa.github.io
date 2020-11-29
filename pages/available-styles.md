@@ -38,6 +38,10 @@ function foo (a) {
     a = a;
 
 }
+
+if (a < b || b > c || b ~= a)
+
+&&
 ```
 
 clojure

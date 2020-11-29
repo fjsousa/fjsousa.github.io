@@ -57,7 +57,10 @@
   [language code]
   (let [code (-> code (clojure.string/escape char-escape-string)
                  (clojure.string/replace  "'" "\\'")
-                 (clojure.string/replace "&quot;" "\\\""))
+                 (clojure.string/replace "&quot;" "\\\"")
+                 (clojure.string/replace "&lt;" "<")
+                 (clojure.string/replace "&gt;" ">")
+                 (clojure.string/replace "&amp;" "&"))
         raw-string (str "console.log(require('highlightjs').highlight('" language "','" code "').value)")
         {:keys [out exit err]} (sh "node" "-e" raw-string)
         _ (when (not (= 0 exit))
@@ -112,8 +115,9 @@
 
     [page-key page-parsed]))
 
-(md/md-to-html-string-with-meta (slurp (first (glob/glob (str (-> "src/blog/config.edn" slurp edn/read-string :root) "/pages/available-styles.md")))) :inhibit-separator "%")
-(parse-page (first (glob/glob (str (-> "src/blog/config.edn" slurp edn/read-string :root) "/pages/available-styles.md"))))
+(comment (md/md-to-html-string-with-meta (slurp (first (glob/glob (str (-> "src/blog/config.edn" slurp edn/read-string :root) "/pages/available-styles.md")))) :inhibit-separator "%")
+
+ (parse-page (first (glob/glob (str (-> "src/blog/config.edn" slurp edn/read-string :root) "/pages/available-styles.md")))))
 
 
 (defn parse-markdowns
