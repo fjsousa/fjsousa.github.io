@@ -7,6 +7,6 @@ Thumb-alt: Posing in front of what it seems to be a Brutalist building in Bangal
 Link-rewrite: https://medium.com/@fjsousa/seat-45-my-vipassana-experience-cfa23869c849
 Link-copy: Read at Medium
 Grid-img: thumb.jpeg
-
+Skip-post-walk: true
 
 no content.

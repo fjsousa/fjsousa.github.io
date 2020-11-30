@@ -101,12 +101,13 @@
         page-val (-> page
                      slurp
                      (md/md-to-html-string-with-meta :inhibit-separator "%"))
+        skip-post-walk? (-> page-val :metadata :skip-post-walk first)
         _ (when (not (s/valid? :blog/page page-val))
             (do (println (s/explain :blog/page page-val))
                 (throw (Exception. (format "Markdown not valid for '%s' Check logs." page-key)))))
         page-parsed (-> page-val
                         (update-in [:html] #(->> % hickory/parse-fragment (mapv hickory/as-hiccup) concat (into [:div])))
-                        (update-in [:html] #(postwalk walk-fn %))
+                        (update-in [:html] #(if skip-post-walk? % (postwalk walk-fn %)))
                         (clojure.set/rename-keys {:html :content})
                         (update-in [:metadata :title]  first)
                         (update-in [:metadata :subtitle] first)
@@ -126,17 +127,14 @@
 
 (comment (md/md-to-html-string-with-meta (slurp (first (glob/glob (str (-> "src/blog/config.edn" slurp edn/read-string :root) "/pages/available-styles.md")))) :inhibit-separator "%")
 
-(parse-page (first (glob/glob (str (-> "src/blog/config.edn" slurp edn/read-string :root) "/pages/available-styles.md")))))
-
-(parse-page (first (glob/glob (str (-> "src/blog/config.edn" slurp edn/read-string :root) "/pages/available-styles.md"))))
-
+         (parse-page (first (glob/glob (str (-> "src/blog/config.edn" slurp edn/read-string :root) "/pages/about.md")))))
 
 (defn parse-markdowns
   "Loads markdown files into an unparsed datastructure
   {:some-blog-post {:title :subtitle :tags ...}"
   [root]
   (->> (get-pages root)
-       (map parse-page)
+       (pmap parse-page)
        (into {})))
 
 

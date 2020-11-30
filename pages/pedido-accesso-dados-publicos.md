@@ -2,7 +2,7 @@ Title: Como fazer um pedido de acesso a dados públicos
 Subtitle: ...
 Tags: Open Data
 Date: 2017 09 23
-
+Skip-post-walk: true
 
 # Como fazer um pedido de acesso a dados públicos
 
