@@ -1547,7 +1547,6 @@ header {
 
 .articles-grid {
   margin-bottom: -30px;
-  width: calc(100% + 30px) !important;
   column-count: 3; }
   @media (min-width: 1281px) {
     .articles-grid {
