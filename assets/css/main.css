@@ -1547,6 +1547,9 @@ header {
 
 .articles-grid {
   margin-bottom: -30px;
+  position: relative;
+  left: 50%;
+  transform: translateX(-50%);
   column-count: 3; }
   @media (min-width: 1281px) {
     .articles-grid {

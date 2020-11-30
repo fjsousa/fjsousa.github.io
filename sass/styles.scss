@@ -218,6 +218,9 @@ header {
 .articles-grid {
   margin-bottom: -30px;
   //width: calc(100% + 30px) !important;
+  position: relative;
+  left: 50%;
+  transform: translateX(-50%);
   column-count: 3;
   @media (min-width: $l-min) {
       column-count: 4;
