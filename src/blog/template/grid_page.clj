@@ -14,7 +14,7 @@
              [:img {:src (format "assets/img/%s/%s" (name page-key) thumb), :alt thumb-alt}]])
           [:div {:class "excerpt"}
            [:p title
-            [:br][:span {:style "color: gray; font-size: 0.8rem"} (f/unparse  (f/formatter "yyyy-MM-dd") date)]]]]
+            #_#_[:br][:span {:style "color: gray; font-size: 0.8rem"} (f/unparse  (f/formatter "yyyy-MM-dd") date)]]]]
 
          [:div {:class "lightbox", :data-lightbox (str (+ 1 (/ (count res) 2)))}
           [:div {:class "inner"}
@@ -39,15 +39,19 @@
                  copy (if link-copy
                         (str link-copy " →")
                         "Read full article →")]
-               [:a options copy])]]]))
+             [:a options copy])]]]))
 
 (defn main [pages]
-  (let [content [:div {:class "col-12"}
+  (let [pages (->> pages
+                   (into [])
+                   #_(sort-by #(-> % last :metadata :date))
+                   #_reverse
+                   (reduce article []))
+        content [:div {:class "col-12"}
                  (into
-                  [:div {:class "masonry-grid articles-grid"}] (reduce article [] pages))]]
+                  [:div {:class "masonry-grid articles-grid"}] pages )]]
    (shared/main {:title (:head-title config) :subtitle (:meta-description config)} content)))
 
-
 #_(->> (main (blog.core/parse-markdowns (-> "src/blog/config.edn" slurp edn/read-string :root)))
-       hiccup.core/html
-     (spit (str (-> "src/blog/config.edn" slurp clojure.tools.reader.edn/read-string :root) "/index.html")))
+     hiccup.core/html
+     #_(spit (str (-> "src/blog/config.edn" slurp clojure.tools.reader.edn/read-string :root) "/index.html")))

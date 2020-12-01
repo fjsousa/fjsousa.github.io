@@ -11,10 +11,7 @@
     [:meta {:content "width=device-width, initial-scale=1, maximum-scale=1" :name "viewport"}]
     [:meta {:name "description" :content subtitle}]
     [:title title]
-    [:link {:href "assets/css/style-hljs.css", :rel "stylesheet"}]
     [:link {:href "assets/css/main.css", :rel "stylesheet"}]
-    [:link {:href "https://fonts.gstatic.com" :rel "preconnect"}]
-    [:link {:href "https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,700;1,400;1,700&family=Ubuntu+Mono:ital,wght@0,400;0,700;1,400;1,700&display=swap" , :rel "stylesheet"}]
     [:script {:src "https://plausible.io/js/plausible.js"
               :async "defer" :data-domain "flaviosousa.co"}]]
 
