@@ -219,8 +219,6 @@ header {
   margin-bottom: -30px;
   //width: calc(100% + 30px) !important;
   position: relative;
-  left: 50%;
-  transform: translateX(-50%);
   column-count: 3;
   @media (min-width: $l-min) {
       column-count: 4;
@@ -235,13 +233,15 @@ header {
   }
 
   .article-item {
-    box-shadow: 0 0 0 1px #000;
+    border: 1px solid #000;
     cursor: pointer;
-    margin-bottom: 30px;
+    margin-bottom: 29px;
+    margin-top: 1px;
     overflow: hidden;
     position: relative;
     transition: none !important;
     width: 100%;
+    display: inline-grid;
 
     @media (max-width: $l-min) {
         width: 100%;//calc(100%/3 - 30px);
@@ -442,6 +442,12 @@ canvas {
 
   h1, h2, h3, .h1, .h2, .h3 {
     margin-bottom: 30px;
+  }
+
+  img {
+      position: relative;
+      left: 50%;
+      transform: translateX(-50%);
   }
 }
 
