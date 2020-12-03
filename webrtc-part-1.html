@@ -1,6 +1,447 @@
-<html dir="ltr" lang="en"><head><meta charset="UTF-8" /><meta content="width=device-width, initial-scale=1, maximum-scale=1" name="viewport" /><meta content="I did a little experiment with WebRTC and a CFD (Computational Fluid Dynamics) solver I wrote. I wanted to see what could be done with webRTC and browser parallel computing. First, I needed a problem that was computationally intense and suitable to parallelization. CFD suited that class of problems and plus, coming from mechanical engineering, it was a type of problem I was decently familiar with." name="description" /><title>WebRTC Parallel Processing with a 2D partial difference equations solver (part-1)</title><link href="assets/css/main.css" rel="stylesheet" /><script async="defer" data-domain="flaviosousa.co" src="https://plausible.io/js/plausible.js"></script></head><body><header><div class="container"><div class="row"><div class="col-12 col-sm-4 col-md-3"><p class="h1"><strong><a href="/">flaviosousa.co</a></strong></p><p>Software Engineer</p></div><div class="col-12 col-sm-4 col-md-5"><div class="about"><p><i>Personal website.<br />Past projects, bit of blogging.</i></p></div></div><div class="col-12 col-sm-4"><div class="social-links"><a href="https://medium.com/@fjsousa" target="_blank"><img src="assets/img/icon-medium.svg" /></a><a href="https://www.linkedin.com/in/fjsousa/" target="_blank"><img src="assets/img/icon-linkedin.svg" /></a><a target="_blank"><img src="assets/img/icon-twitter.svg" /></a><a href="https://github.com/fjsousa" target="_blank"><img src="assets/img/icon-github.svg" /></a></div></div></div></div></header><main><div class="container"><div class="row"><div class="col-12 col-sm-6 col-sm-push-3"><article class="article-body"><h1>WebRTC Parallel Processing (part-1)</h1><p>I did a little experiment with WebRTC and a CFD (Computational Fluid Dynamics) solver I wrote. I wanted to see what could be done with webRTC and browser parallel computing. First, I needed a problem that was computationally intense and suitable to parallelization. CFD suited that class of problems and plus, coming from mechanical engineering, it was a type of problem I was decently familiar with.</p><p>CFD is a class of numerical methods to solve differential equations from fluid flow problems. We want to solve a given set of equation to compute several fields like flow velocity, temperature and other physical properties.</p><p>The methods used in this type of numerical analysis are iterative, meaning that you'll have to compute several solutions, each one function of and closer to the final solution than the previous. When you use parallel computing techniques, you end up with a lot of communication between nodes at each iteration. This way, the communication speed quickly becomes the bottleneck in the process.</p><p>In this first post, I'll write about the solver itself.  In a second post, I'll write about how I used WebRtC to distribute the computation across several browsers. In a third post, I'll write about performance considerations.</p><h2>The Poisson Equation</h2><p>The equation I'm solving is in the form of</p><p></p><div class="equation">  $$ \left(\frac{\partial ^2 }{\partial x^2 } + \frac{\partial^2 }{\partial y^2 } \right) U(x,y) = b $$  </div><p></p><p>this equation describes aspects of physical behaviour in, for instance, heat transfer and fluid flow. Fluid flow problems are based in the Navier Stokes equation. Solving the poisson term is an important step of a Navier Stokes solver as it  makes up a large amount of the computing time.</p><p>In the equation above, the term <em>U(x,y)</em> represents the field we are interested in computing. Usually there's no analytical solution to get <em>U</em>, hence the need to use numerical methods. However if we want to test the solver, we can go the other way around. We Start with a given <em>U</em> function,  and replace it in the equation above.</p><p>Considering a rectangular domain of width <em>w</em> and height <em>h</em>, we have for instance:</p><p></p><div class="equation">  $$ U(x,y) = cos \left( \pi \left( \frac{1}{2} - \frac{x}{w} \right) \right) sin \left( \pi \frac{y}{h} \right) $$  </div><p></p><p>The field <em>U</em> plotted in <em>x</em>, <em>y</em> looks something like this:</p><p><img alt="Analytical Field" src="assets/img/webrtc-part-1/analitical.png" title="Analytical Field" /></p><p>Replacing the first equation with this <em>U</em> function we get:</p><p></p><div class"equation"="">  $$ \left(\frac{\partial ^2}{\partial x^2} + \frac{\partial ^2}{\partial y^2} \right) U(x,y) = U(x,y) \left( -\frac{\pi^2}{h^2} - \frac{\pi^2}{w^2}  \right) .$$ <p></p><p>It's important to notice that our <em>U</em> function doesn't have any practical physical meaning. It's just a way to test a solver of a differential equation, of which we have an analytical solution.</p><h2>Numerical Model</h2><p>The next step is to discretize the equation and obtain an algebraic formula for <em>U</em> that we can code. I won't go into details about the deduction because this is an extensive topic but you can find many references all over the internet, <a href="http://www.ece.utah.edu/~ece6340/LECTURES/Feb1/Nagel20201220-20Solving20the20Generalized20Poisson20Equation20using%20FDM.pdf">like this one</a>.</p><p>Basically, the idea is to approximate the derivative in an array of points in the domain of the solution. The points are equally spread in <em>x</em> and <em>y</em> like in the image bellow</p><p><img alt="points" src="assets/img/webrtc-part-1/domain.png" title="Points" /></p><p>In the image, <em>h</em> is the distance between two points. In the x and y direction, this distance will be called <em>Δx</em> and <em>Δy</em>, respectively. Here's the numerical formula for our equation:</p><p></p><div class="equation">  $$u_{i,j} = - \frac{1}{-2/\Delta x^2 -2/ \Delta y^2} \left( \frac{u_{i,j-1} + u_{i,j+1}}{\Delta x^2} + \frac{u_{i+1,j} + u_{i-1,j} } {\Delta y^2} - U(x_j,y_i) \left( -\frac{\pi^2}{h^2} - \frac{\pi^2}{w^2}  \right) \right).$$  <div><p></p><p>To compute the field <em>u</em> we follow this procedure: we start with all points set to <em>u = 0</em> and compute <em>u'</em> for every point. We then repeat the process, computing the new values of <em>u'</em>, but now using the old values we computed earlier. The process is repeated until there is no significant difference between the new values and the old ones.</p><h2>Javascript Implementation</h2><p>I implemented the solver in node first so that I could have a version to test in my local machine. In CFD testing is an important step and there's two steps to accept a numerical solution as valid. First you have to check if the numerical method is being solved correctly. This step is known as verification. Secondly, you have to check if the solution compares well with the equations. This is known as validation. This two steps are implemented in a small test suit. You can find the solver on a <a href="//github.com/fjsousa/poisson-solver">github repository</a>.</p><p>Here's a walkthrough of the solver:</p><p>To install it just run</p><pre><code><div>  npm install fjsousa/poisson-solver
-
-</div></code></pre><p>Then, require and instantiate the solver:</p><pre><code class="Javascript"><div>  <span class="hljs-keyword">var</span> Poisson = <span class="hljs-built_in">require</span>(<span class="hljs-string">'poisson-solver'</span>);
+<html dir="ltr" lang="en"><head><meta charset="UTF-8" /><meta content="width=device-width, initial-scale=1, maximum-scale=1" name="viewport" /><meta content="I did a little experiment with WebRTC and a CFD (Computational Fluid Dynamics) solver I wrote. I wanted to see what could be done with WebRTC and browser parallel computing. First, I needed a problem that was computationally intense and suitable to parallelization. CFD suited that class of problems and plus, coming from mechanical engineering, it was a type of problem I was decently familiar with." name="description" /><title>WebRTC Parallel Processing with a 2D partial difference equations solver (part-1)</title><link href="assets/css/main.css" rel="stylesheet" /><script async="defer" data-domain="flaviosousa.co" src="https://plausible.io/js/plausible.js"></script></head><body><header><div class="container"><div class="row"><div class="col-12 col-sm-4 col-md-3"><p class="h1"><strong><a href="/">flaviosousa.co</a></strong></p><p>Software Engineer</p></div><div class="col-12 col-sm-4 col-md-5"><div class="about"><p><i>Personal website.<br />Past projects, bit of blogging.</i></p></div></div><div class="col-12 col-sm-4"><div class="social-links"><a href="https://medium.com/@fjsousa" target="_blank"><img src="assets/img/icon-medium.svg" /></a><a href="https://www.linkedin.com/in/fjsousa/" target="_blank"><img src="assets/img/icon-linkedin.svg" /></a><a target="_blank"><img src="assets/img/icon-twitter.svg" /></a><a href="https://github.com/fjsousa" target="_blank"><img src="assets/img/icon-github.svg" /></a></div></div></div></div></header><main><div class="container"><div class="row"><div class="col-12 col-sm-6 col-sm-push-3"><article class="article-body"><p>(Edited 3/12/2020: originally published at datajournal.co.uk. Republished in my personal blog with minor grammar fixes.)</p><h1>WebRTC Parallel Processing (part-1)</h1><p>I did a little experiment with WebRTC and a CFD (Computational Fluid Dynamics) solver I wrote. I wanted to see what could be done with WebRTC and browser parallel computing. First, I needed a problem that was computationally intense and suitable to parallelization. CFD suited that class of problems and plus, coming from mechanical engineering, it was a type of problem I was decently familiar with.</p><p>CFD is a class of numerical methods to solve differential equations from fluid flow problems. We want to solve a given set of equation to compute several fields like flow velocity, temperature and other physical properties.</p><p>The methods used in this type of numerical analysis are iterative, meaning that you'll have to compute several solutions, each one function of and closer to the final solution than the previous. When you use parallel computing techniques, you end up with a lot of communication between nodes at each iteration. This way, the communication speed quickly becomes the bottleneck in the process.</p><p>In this first post, I'll write about the solver itself.  In a second post, I'll write about how I used WebRTC to distribute the computation across several browsers, and in a third post, I'll write about performance considerations.</p><h2>The Poisson Equation</h2><p>The equation I'm solving is in the form of</p><p></p><p class="mathjax"><svg xmlns:xlink="http://www.w3.org/1999/xlink" width="26.763ex" height="6.343ex" style="vertical-align: -2.505ex;" viewBox="0 -1652.5 11522.8 2730.8" role="img" focusable="false" xmlns="http://www.w3.org/2000/svg" aria-labelledby="MathJax-SVG-1-Title">
+<title id="MathJax-SVG-1-Title">left-parenthesis StartFraction partial-differential squared Over partial-differential x squared EndFraction plus StartFraction partial-differential squared Over partial-differential y squared EndFraction right-parenthesis upper U left-parenthesis x comma y right-parenthesis equals b</title>
+<defs aria-hidden="true">
+<path stroke-width="1" id="E1-MJMAIN-28" d="M94 250Q94 319 104 381T127 488T164 576T202 643T244 695T277 729T302 750H315H319Q333 750 333 741Q333 738 316 720T275 667T226 581T184 443T167 250T184 58T225 -81T274 -167T316 -220T333 -241Q333 -250 318 -250H315H302L274 -226Q180 -141 137 -14T94 250Z"></path>
+<path stroke-width="1" id="E1-MJMAIN-2202" d="M202 508Q179 508 169 520T158 547Q158 557 164 577T185 624T230 675T301 710L333 715H345Q378 715 384 714Q447 703 489 661T549 568T566 457Q566 362 519 240T402 53Q321 -22 223 -22Q123 -22 73 56Q42 102 42 148V159Q42 276 129 370T322 465Q383 465 414 434T455 367L458 378Q478 461 478 515Q478 603 437 639T344 676Q266 676 223 612Q264 606 264 572Q264 547 246 528T202 508ZM430 306Q430 372 401 400T333 428Q270 428 222 382Q197 354 183 323T150 221Q132 149 132 116Q132 21 232 21Q244 21 250 22Q327 35 374 112Q389 137 409 196T430 306Z"></path>
+<path stroke-width="1" id="E1-MJMAIN-32" d="M109 429Q82 429 66 447T50 491Q50 562 103 614T235 666Q326 666 387 610T449 465Q449 422 429 383T381 315T301 241Q265 210 201 149L142 93L218 92Q375 92 385 97Q392 99 409 186V189H449V186Q448 183 436 95T421 3V0H50V19V31Q50 38 56 46T86 81Q115 113 136 137Q145 147 170 174T204 211T233 244T261 278T284 308T305 340T320 369T333 401T340 431T343 464Q343 527 309 573T212 619Q179 619 154 602T119 569T109 550Q109 549 114 549Q132 549 151 535T170 489Q170 464 154 447T109 429Z"></path>
+<path stroke-width="1" id="E1-MJMATHI-78" d="M52 289Q59 331 106 386T222 442Q257 442 286 424T329 379Q371 442 430 442Q467 442 494 420T522 361Q522 332 508 314T481 292T458 288Q439 288 427 299T415 328Q415 374 465 391Q454 404 425 404Q412 404 406 402Q368 386 350 336Q290 115 290 78Q290 50 306 38T341 26Q378 26 414 59T463 140Q466 150 469 151T485 153H489Q504 153 504 145Q504 144 502 134Q486 77 440 33T333 -11Q263 -11 227 52Q186 -10 133 -10H127Q78 -10 57 16T35 71Q35 103 54 123T99 143Q142 143 142 101Q142 81 130 66T107 46T94 41L91 40Q91 39 97 36T113 29T132 26Q168 26 194 71Q203 87 217 139T245 247T261 313Q266 340 266 352Q266 380 251 392T217 404Q177 404 142 372T93 290Q91 281 88 280T72 278H58Q52 284 52 289Z"></path>
+<path stroke-width="1" id="E1-MJMAIN-2B" d="M56 237T56 250T70 270H369V420L370 570Q380 583 389 583Q402 583 409 568V270H707Q722 262 722 250T707 230H409V-68Q401 -82 391 -82H389H387Q375 -82 369 -68V230H70Q56 237 56 250Z"></path>
+<path stroke-width="1" id="E1-MJMATHI-79" d="M21 287Q21 301 36 335T84 406T158 442Q199 442 224 419T250 355Q248 336 247 334Q247 331 231 288T198 191T182 105Q182 62 196 45T238 27Q261 27 281 38T312 61T339 94Q339 95 344 114T358 173T377 247Q415 397 419 404Q432 431 462 431Q475 431 483 424T494 412T496 403Q496 390 447 193T391 -23Q363 -106 294 -155T156 -205Q111 -205 77 -183T43 -117Q43 -95 50 -80T69 -58T89 -48T106 -45Q150 -45 150 -87Q150 -107 138 -122T115 -142T102 -147L99 -148Q101 -153 118 -160T152 -167H160Q177 -167 186 -165Q219 -156 247 -127T290 -65T313 -9T321 21L315 17Q309 13 296 6T270 -6Q250 -11 231 -11Q185 -11 150 11T104 82Q103 89 103 113Q103 170 138 262T173 379Q173 380 173 381Q173 390 173 393T169 400T158 404H154Q131 404 112 385T82 344T65 302T57 280Q55 278 41 278H27Q21 284 21 287Z"></path>
+<path stroke-width="1" id="E1-MJMAIN-29" d="M60 749L64 750Q69 750 74 750H86L114 726Q208 641 251 514T294 250Q294 182 284 119T261 12T224 -76T186 -143T145 -194T113 -227T90 -246Q87 -249 86 -250H74Q66 -250 63 -250T58 -247T55 -238Q56 -237 66 -225Q221 -64 221 250T66 725Q56 737 55 738Q55 746 60 749Z"></path>
+<path stroke-width="1" id="E1-MJSZ3-28" d="M701 -940Q701 -943 695 -949H664Q662 -947 636 -922T591 -879T537 -818T475 -737T412 -636T350 -511T295 -362T250 -186T221 17T209 251Q209 962 573 1361Q596 1386 616 1405T649 1437T664 1450H695Q701 1444 701 1441Q701 1436 681 1415T629 1356T557 1261T476 1118T400 927T340 675T308 359Q306 321 306 250Q306 -139 400 -430T690 -924Q701 -936 701 -940Z"></path>
+<path stroke-width="1" id="E1-MJSZ3-29" d="M34 1438Q34 1446 37 1448T50 1450H56H71Q73 1448 99 1423T144 1380T198 1319T260 1238T323 1137T385 1013T440 864T485 688T514 485T526 251Q526 134 519 53Q472 -519 162 -860Q139 -885 119 -904T86 -936T71 -949H56Q43 -949 39 -947T34 -937Q88 -883 140 -813Q428 -430 428 251Q428 453 402 628T338 922T245 1146T145 1309T46 1425Q44 1427 42 1429T39 1433T36 1436L34 1438Z"></path>
+<path stroke-width="1" id="E1-MJMATHI-55" d="M107 637Q73 637 71 641Q70 643 70 649Q70 673 81 682Q83 683 98 683Q139 681 234 681Q268 681 297 681T342 682T362 682Q378 682 378 672Q378 670 376 658Q371 641 366 638H364Q362 638 359 638T352 638T343 637T334 637Q295 636 284 634T266 623Q265 621 238 518T184 302T154 169Q152 155 152 140Q152 86 183 55T269 24Q336 24 403 69T501 205L552 406Q599 598 599 606Q599 633 535 637Q511 637 511 648Q511 650 513 660Q517 676 519 679T529 683Q532 683 561 682T645 680Q696 680 723 681T752 682Q767 682 767 672Q767 650 759 642Q756 637 737 637Q666 633 648 597Q646 592 598 404Q557 235 548 205Q515 105 433 42T263 -22Q171 -22 116 34T60 167V183Q60 201 115 421Q164 622 164 628Q164 635 107 637Z"></path>
+<path stroke-width="1" id="E1-MJMAIN-2C" d="M78 35T78 60T94 103T137 121Q165 121 187 96T210 8Q210 -27 201 -60T180 -117T154 -158T130 -185T117 -194Q113 -194 104 -185T95 -172Q95 -168 106 -156T131 -126T157 -76T173 -3V9L172 8Q170 7 167 6T161 3T152 1T140 0Q113 0 96 17Z"></path>
+<path stroke-width="1" id="E1-MJMAIN-3D" d="M56 347Q56 360 70 367H707Q722 359 722 347Q722 336 708 328L390 327H72Q56 332 56 347ZM56 153Q56 168 72 173H708Q722 163 722 153Q722 140 707 133H70Q56 140 56 153Z"></path>
+<path stroke-width="1" id="E1-MJMATHI-62" d="M73 647Q73 657 77 670T89 683Q90 683 161 688T234 694Q246 694 246 685T212 542Q204 508 195 472T180 418L176 399Q176 396 182 402Q231 442 283 442Q345 442 383 396T422 280Q422 169 343 79T173 -11Q123 -11 82 27T40 150V159Q40 180 48 217T97 414Q147 611 147 623T109 637Q104 637 101 637H96Q86 637 83 637T76 640T73 647ZM336 325V331Q336 405 275 405Q258 405 240 397T207 376T181 352T163 330L157 322L136 236Q114 150 114 114Q114 66 138 42Q154 26 178 26Q211 26 245 58Q270 81 285 114T318 219Q336 291 336 325Z"></path>
+</defs>
+<g stroke="currentColor" fill="currentColor" stroke-width="0" transform="matrix(1 0 0 -1 0 0)" aria-hidden="true">
+ <use xlink:href="#E1-MJSZ3-28"></use>
+<g transform="translate(736,0)">
+<g transform="translate(120,0)">
+<rect stroke="none" width="1713" height="60" x="0" y="220"></rect>
+<g transform="translate(340,676)">
+ <use xlink:href="#E1-MJMAIN-2202" x="0" y="0"></use>
+ <use transform="scale(0.707)" xlink:href="#E1-MJMAIN-32" x="817" y="513"></use>
+</g>
+<g transform="translate(60,-780)">
+ <use xlink:href="#E1-MJMAIN-2202" x="0" y="0"></use>
+<g transform="translate(567,0)">
+ <use xlink:href="#E1-MJMATHI-78" x="0" y="0"></use>
+ <use transform="scale(0.707)" xlink:href="#E1-MJMAIN-32" x="809" y="408"></use>
+</g>
+</g>
+</g>
+</g>
+ <use xlink:href="#E1-MJMAIN-2B" x="2912" y="0"></use>
+<g transform="translate(3691,0)">
+<g transform="translate(342,0)">
+<rect stroke="none" width="1641" height="60" x="0" y="220"></rect>
+<g transform="translate(304,676)">
+ <use xlink:href="#E1-MJMAIN-2202" x="0" y="0"></use>
+ <use transform="scale(0.707)" xlink:href="#E1-MJMAIN-32" x="817" y="513"></use>
+</g>
+<g transform="translate(60,-780)">
+ <use xlink:href="#E1-MJMAIN-2202" x="0" y="0"></use>
+<g transform="translate(567,0)">
+ <use xlink:href="#E1-MJMATHI-79" x="0" y="0"></use>
+ <use transform="scale(0.707)" xlink:href="#E1-MJMAIN-32" x="706" y="408"></use>
+</g>
+</g>
+</g>
+</g>
+ <use xlink:href="#E1-MJSZ3-29" x="5794" y="-1"></use>
+ <use xlink:href="#E1-MJMATHI-55" x="6697" y="0"></use>
+ <use xlink:href="#E1-MJMAIN-28" x="7465" y="0"></use>
+ <use xlink:href="#E1-MJMATHI-78" x="7854" y="0"></use>
+ <use xlink:href="#E1-MJMAIN-2C" x="8427" y="0"></use>
+ <use xlink:href="#E1-MJMATHI-79" x="8872" y="0"></use>
+ <use xlink:href="#E1-MJMAIN-29" x="9369" y="0"></use>
+ <use xlink:href="#E1-MJMAIN-3D" x="10037" y="0"></use>
+ <use xlink:href="#E1-MJMATHI-62" x="11093" y="0"></use>
+</g>
+</svg>
+</p><p></p><p>this equation describes aspects of physical behaviour in, for instance, heat transfer and fluid flow. Fluid flow problems are based in the Navier-Stokes equation. Solving the Poisson term is an important step of a Navier-Stokes solver as it  makes up a large amount of the computing time.</p><p>In the equation above, the term <em>U(x,y)</em> represents the field we are interested in computing. Usually there's no analytical solution to get <em>U</em>, hence the need to use numerical methods. However, if we want to test the solver, we can go the other way around. We start with a given <em>U</em> function,  and replace it in the equation above.</p><p>Considering a rectangular domain of width <em>w</em> and height <em>h</em>, we have for instance:</p><p></p><p class="mathjax"><svg xmlns:xlink="http://www.w3.org/1999/xlink" width="40.067ex" height="6.176ex" style="vertical-align: -2.505ex;" viewBox="0 -1580.7 17250.8 2659.1" role="img" focusable="false" xmlns="http://www.w3.org/2000/svg" aria-labelledby="MathJax-SVG-1-Title">
+<title id="MathJax-SVG-1-Title">upper U left-parenthesis x comma y right-parenthesis equals c o s left-parenthesis pi left-parenthesis one half minus StartFraction x Over w EndFraction right-parenthesis right-parenthesis s i n left-parenthesis pi StartFraction y Over h EndFraction right-parenthesis</title>
+<defs aria-hidden="true">
+<path stroke-width="1" id="E1-MJMATHI-55" d="M107 637Q73 637 71 641Q70 643 70 649Q70 673 81 682Q83 683 98 683Q139 681 234 681Q268 681 297 681T342 682T362 682Q378 682 378 672Q378 670 376 658Q371 641 366 638H364Q362 638 359 638T352 638T343 637T334 637Q295 636 284 634T266 623Q265 621 238 518T184 302T154 169Q152 155 152 140Q152 86 183 55T269 24Q336 24 403 69T501 205L552 406Q599 598 599 606Q599 633 535 637Q511 637 511 648Q511 650 513 660Q517 676 519 679T529 683Q532 683 561 682T645 680Q696 680 723 681T752 682Q767 682 767 672Q767 650 759 642Q756 637 737 637Q666 633 648 597Q646 592 598 404Q557 235 548 205Q515 105 433 42T263 -22Q171 -22 116 34T60 167V183Q60 201 115 421Q164 622 164 628Q164 635 107 637Z"></path>
+<path stroke-width="1" id="E1-MJMAIN-28" d="M94 250Q94 319 104 381T127 488T164 576T202 643T244 695T277 729T302 750H315H319Q333 750 333 741Q333 738 316 720T275 667T226 581T184 443T167 250T184 58T225 -81T274 -167T316 -220T333 -241Q333 -250 318 -250H315H302L274 -226Q180 -141 137 -14T94 250Z"></path>
+<path stroke-width="1" id="E1-MJMATHI-78" d="M52 289Q59 331 106 386T222 442Q257 442 286 424T329 379Q371 442 430 442Q467 442 494 420T522 361Q522 332 508 314T481 292T458 288Q439 288 427 299T415 328Q415 374 465 391Q454 404 425 404Q412 404 406 402Q368 386 350 336Q290 115 290 78Q290 50 306 38T341 26Q378 26 414 59T463 140Q466 150 469 151T485 153H489Q504 153 504 145Q504 144 502 134Q486 77 440 33T333 -11Q263 -11 227 52Q186 -10 133 -10H127Q78 -10 57 16T35 71Q35 103 54 123T99 143Q142 143 142 101Q142 81 130 66T107 46T94 41L91 40Q91 39 97 36T113 29T132 26Q168 26 194 71Q203 87 217 139T245 247T261 313Q266 340 266 352Q266 380 251 392T217 404Q177 404 142 372T93 290Q91 281 88 280T72 278H58Q52 284 52 289Z"></path>
+<path stroke-width="1" id="E1-MJMAIN-2C" d="M78 35T78 60T94 103T137 121Q165 121 187 96T210 8Q210 -27 201 -60T180 -117T154 -158T130 -185T117 -194Q113 -194 104 -185T95 -172Q95 -168 106 -156T131 -126T157 -76T173 -3V9L172 8Q170 7 167 6T161 3T152 1T140 0Q113 0 96 17Z"></path>
+<path stroke-width="1" id="E1-MJMATHI-79" d="M21 287Q21 301 36 335T84 406T158 442Q199 442 224 419T250 355Q248 336 247 334Q247 331 231 288T198 191T182 105Q182 62 196 45T238 27Q261 27 281 38T312 61T339 94Q339 95 344 114T358 173T377 247Q415 397 419 404Q432 431 462 431Q475 431 483 424T494 412T496 403Q496 390 447 193T391 -23Q363 -106 294 -155T156 -205Q111 -205 77 -183T43 -117Q43 -95 50 -80T69 -58T89 -48T106 -45Q150 -45 150 -87Q150 -107 138 -122T115 -142T102 -147L99 -148Q101 -153 118 -160T152 -167H160Q177 -167 186 -165Q219 -156 247 -127T290 -65T313 -9T321 21L315 17Q309 13 296 6T270 -6Q250 -11 231 -11Q185 -11 150 11T104 82Q103 89 103 113Q103 170 138 262T173 379Q173 380 173 381Q173 390 173 393T169 400T158 404H154Q131 404 112 385T82 344T65 302T57 280Q55 278 41 278H27Q21 284 21 287Z"></path>
+<path stroke-width="1" id="E1-MJMAIN-29" d="M60 749L64 750Q69 750 74 750H86L114 726Q208 641 251 514T294 250Q294 182 284 119T261 12T224 -76T186 -143T145 -194T113 -227T90 -246Q87 -249 86 -250H74Q66 -250 63 -250T58 -247T55 -238Q56 -237 66 -225Q221 -64 221 250T66 725Q56 737 55 738Q55 746 60 749Z"></path>
+<path stroke-width="1" id="E1-MJMAIN-3D" d="M56 347Q56 360 70 367H707Q722 359 722 347Q722 336 708 328L390 327H72Q56 332 56 347ZM56 153Q56 168 72 173H708Q722 163 722 153Q722 140 707 133H70Q56 140 56 153Z"></path>
+<path stroke-width="1" id="E1-MJMATHI-63" d="M34 159Q34 268 120 355T306 442Q362 442 394 418T427 355Q427 326 408 306T360 285Q341 285 330 295T319 325T330 359T352 380T366 386H367Q367 388 361 392T340 400T306 404Q276 404 249 390Q228 381 206 359Q162 315 142 235T121 119Q121 73 147 50Q169 26 205 26H209Q321 26 394 111Q403 121 406 121Q410 121 419 112T429 98T420 83T391 55T346 25T282 0T202 -11Q127 -11 81 37T34 159Z"></path>
+<path stroke-width="1" id="E1-MJMATHI-6F" d="M201 -11Q126 -11 80 38T34 156Q34 221 64 279T146 380Q222 441 301 441Q333 441 341 440Q354 437 367 433T402 417T438 387T464 338T476 268Q476 161 390 75T201 -11ZM121 120Q121 70 147 48T206 26Q250 26 289 58T351 142Q360 163 374 216T388 308Q388 352 370 375Q346 405 306 405Q243 405 195 347Q158 303 140 230T121 120Z"></path>
+<path stroke-width="1" id="E1-MJMATHI-73" d="M131 289Q131 321 147 354T203 415T300 442Q362 442 390 415T419 355Q419 323 402 308T364 292Q351 292 340 300T328 326Q328 342 337 354T354 372T367 378Q368 378 368 379Q368 382 361 388T336 399T297 405Q249 405 227 379T204 326Q204 301 223 291T278 274T330 259Q396 230 396 163Q396 135 385 107T352 51T289 7T195 -10Q118 -10 86 19T53 87Q53 126 74 143T118 160Q133 160 146 151T160 120Q160 94 142 76T111 58Q109 57 108 57T107 55Q108 52 115 47T146 34T201 27Q237 27 263 38T301 66T318 97T323 122Q323 150 302 164T254 181T195 196T148 231Q131 256 131 289Z"></path>
+<path stroke-width="1" id="E1-MJMATHI-3C0" d="M132 -11Q98 -11 98 22V33L111 61Q186 219 220 334L228 358H196Q158 358 142 355T103 336Q92 329 81 318T62 297T53 285Q51 284 38 284Q19 284 19 294Q19 300 38 329T93 391T164 429Q171 431 389 431Q549 431 553 430Q573 423 573 402Q573 371 541 360Q535 358 472 358H408L405 341Q393 269 393 222Q393 170 402 129T421 65T431 37Q431 20 417 5T381 -10Q370 -10 363 -7T347 17T331 77Q330 86 330 121Q330 170 339 226T357 318T367 358H269L268 354Q268 351 249 275T206 114T175 17Q164 -11 132 -11Z"></path>
+<path stroke-width="1" id="E1-MJMAIN-31" d="M213 578L200 573Q186 568 160 563T102 556H83V602H102Q149 604 189 617T245 641T273 663Q275 666 285 666Q294 666 302 660V361L303 61Q310 54 315 52T339 48T401 46H427V0H416Q395 3 257 3Q121 3 100 0H88V46H114Q136 46 152 46T177 47T193 50T201 52T207 57T213 61V578Z"></path>
+<path stroke-width="1" id="E1-MJMAIN-32" d="M109 429Q82 429 66 447T50 491Q50 562 103 614T235 666Q326 666 387 610T449 465Q449 422 429 383T381 315T301 241Q265 210 201 149L142 93L218 92Q375 92 385 97Q392 99 409 186V189H449V186Q448 183 436 95T421 3V0H50V19V31Q50 38 56 46T86 81Q115 113 136 137Q145 147 170 174T204 211T233 244T261 278T284 308T305 340T320 369T333 401T340 431T343 464Q343 527 309 573T212 619Q179 619 154 602T119 569T109 550Q109 549 114 549Q132 549 151 535T170 489Q170 464 154 447T109 429Z"></path>
+<path stroke-width="1" id="E1-MJMAIN-2212" d="M84 237T84 250T98 270H679Q694 262 694 250T679 230H98Q84 237 84 250Z"></path>
+<path stroke-width="1" id="E1-MJMATHI-77" d="M580 385Q580 406 599 424T641 443Q659 443 674 425T690 368Q690 339 671 253Q656 197 644 161T609 80T554 12T482 -11Q438 -11 404 5T355 48Q354 47 352 44Q311 -11 252 -11Q226 -11 202 -5T155 14T118 53T104 116Q104 170 138 262T173 379Q173 380 173 381Q173 390 173 393T169 400T158 404H154Q131 404 112 385T82 344T65 302T57 280Q55 278 41 278H27Q21 284 21 287Q21 293 29 315T52 366T96 418T161 441Q204 441 227 416T250 358Q250 340 217 250T184 111Q184 65 205 46T258 26Q301 26 334 87L339 96V119Q339 122 339 128T340 136T341 143T342 152T345 165T348 182T354 206T362 238T373 281Q402 395 406 404Q419 431 449 431Q468 431 475 421T483 402Q483 389 454 274T422 142Q420 131 420 107V100Q420 85 423 71T442 42T487 26Q558 26 600 148Q609 171 620 213T632 273Q632 306 619 325T593 357T580 385Z"></path>
+<path stroke-width="1" id="E1-MJSZ3-28" d="M701 -940Q701 -943 695 -949H664Q662 -947 636 -922T591 -879T537 -818T475 -737T412 -636T350 -511T295 -362T250 -186T221 17T209 251Q209 962 573 1361Q596 1386 616 1405T649 1437T664 1450H695Q701 1444 701 1441Q701 1436 681 1415T629 1356T557 1261T476 1118T400 927T340 675T308 359Q306 321 306 250Q306 -139 400 -430T690 -924Q701 -936 701 -940Z"></path>
+<path stroke-width="1" id="E1-MJSZ3-29" d="M34 1438Q34 1446 37 1448T50 1450H56H71Q73 1448 99 1423T144 1380T198 1319T260 1238T323 1137T385 1013T440 864T485 688T514 485T526 251Q526 134 519 53Q472 -519 162 -860Q139 -885 119 -904T86 -936T71 -949H56Q43 -949 39 -947T34 -937Q88 -883 140 -813Q428 -430 428 251Q428 453 402 628T338 922T245 1146T145 1309T46 1425Q44 1427 42 1429T39 1433T36 1436L34 1438Z"></path>
+<path stroke-width="1" id="E1-MJMATHI-69" d="M184 600Q184 624 203 642T247 661Q265 661 277 649T290 619Q290 596 270 577T226 557Q211 557 198 567T184 600ZM21 287Q21 295 30 318T54 369T98 420T158 442Q197 442 223 419T250 357Q250 340 236 301T196 196T154 83Q149 61 149 51Q149 26 166 26Q175 26 185 29T208 43T235 78T260 137Q263 149 265 151T282 153Q302 153 302 143Q302 135 293 112T268 61T223 11T161 -11Q129 -11 102 10T74 74Q74 91 79 106T122 220Q160 321 166 341T173 380Q173 404 156 404H154Q124 404 99 371T61 287Q60 286 59 284T58 281T56 279T53 278T49 278T41 278H27Q21 284 21 287Z"></path>
+<path stroke-width="1" id="E1-MJMATHI-6E" d="M21 287Q22 293 24 303T36 341T56 388T89 425T135 442Q171 442 195 424T225 390T231 369Q231 367 232 367L243 378Q304 442 382 442Q436 442 469 415T503 336T465 179T427 52Q427 26 444 26Q450 26 453 27Q482 32 505 65T540 145Q542 153 560 153Q580 153 580 145Q580 144 576 130Q568 101 554 73T508 17T439 -10Q392 -10 371 17T350 73Q350 92 386 193T423 345Q423 404 379 404H374Q288 404 229 303L222 291L189 157Q156 26 151 16Q138 -11 108 -11Q95 -11 87 -5T76 7T74 17Q74 30 112 180T152 343Q153 348 153 366Q153 405 129 405Q91 405 66 305Q60 285 60 284Q58 278 41 278H27Q21 284 21 287Z"></path>
+<path stroke-width="1" id="E1-MJMATHI-68" d="M137 683Q138 683 209 688T282 694Q294 694 294 685Q294 674 258 534Q220 386 220 383Q220 381 227 388Q288 442 357 442Q411 442 444 415T478 336Q478 285 440 178T402 50Q403 36 407 31T422 26Q450 26 474 56T513 138Q516 149 519 151T535 153Q555 153 555 145Q555 144 551 130Q535 71 500 33Q466 -10 419 -10H414Q367 -10 346 17T325 74Q325 90 361 192T398 345Q398 404 354 404H349Q266 404 205 306L198 293L164 158Q132 28 127 16Q114 -11 83 -11Q69 -11 59 -2T48 16Q48 30 121 320L195 616Q195 629 188 632T149 637H128Q122 643 122 645T124 664Q129 683 137 683Z"></path>
+<path stroke-width="1" id="E1-MJSZ2-28" d="M180 96T180 250T205 541T266 770T353 944T444 1069T527 1150H555Q561 1144 561 1141Q561 1137 545 1120T504 1072T447 995T386 878T330 721T288 513T272 251Q272 133 280 56Q293 -87 326 -209T399 -405T475 -531T536 -609T561 -640Q561 -643 555 -649H527Q483 -612 443 -568T353 -443T266 -270T205 -41Z"></path>
+<path stroke-width="1" id="E1-MJSZ2-29" d="M35 1138Q35 1150 51 1150H56H69Q113 1113 153 1069T243 944T330 771T391 541T416 250T391 -40T330 -270T243 -443T152 -568T69 -649H56Q43 -649 39 -647T35 -637Q65 -607 110 -548Q283 -316 316 56Q324 133 324 251Q324 368 316 445Q278 877 48 1123Q36 1137 35 1138Z"></path>
+</defs>
+<g stroke="currentColor" fill="currentColor" stroke-width="0" transform="matrix(1 0 0 -1 0 0)" aria-hidden="true">
+ <use xlink:href="#E1-MJMATHI-55" x="0" y="0"></use>
+ <use xlink:href="#E1-MJMAIN-28" x="767" y="0"></use>
+ <use xlink:href="#E1-MJMATHI-78" x="1157" y="0"></use>
+ <use xlink:href="#E1-MJMAIN-2C" x="1729" y="0"></use>
+ <use xlink:href="#E1-MJMATHI-79" x="2174" y="0"></use>
+ <use xlink:href="#E1-MJMAIN-29" x="2672" y="0"></use>
+ <use xlink:href="#E1-MJMAIN-3D" x="3339" y="0"></use>
+ <use xlink:href="#E1-MJMATHI-63" x="4395" y="0"></use>
+ <use xlink:href="#E1-MJMATHI-6F" x="4829" y="0"></use>
+ <use xlink:href="#E1-MJMATHI-73" x="5314" y="0"></use>
+<g transform="translate(5950,0)">
+ <use xlink:href="#E1-MJSZ3-28"></use>
+ <use xlink:href="#E1-MJMATHI-3C0" x="736" y="0"></use>
+<g transform="translate(1476,0)">
+ <use xlink:href="#E1-MJSZ3-28"></use>
+<g transform="translate(736,0)">
+<g transform="translate(120,0)">
+<rect stroke="none" width="620" height="60" x="0" y="220"></rect>
+ <use xlink:href="#E1-MJMAIN-31" x="60" y="676"></use>
+ <use xlink:href="#E1-MJMAIN-32" x="60" y="-687"></use>
+</g>
+</g>
+ <use xlink:href="#E1-MJMAIN-2212" x="1819" y="0"></use>
+<g transform="translate(2597,0)">
+<g transform="translate(342,0)">
+<rect stroke="none" width="836" height="60" x="0" y="220"></rect>
+ <use xlink:href="#E1-MJMATHI-78" x="132" y="676"></use>
+ <use xlink:href="#E1-MJMATHI-77" x="60" y="-686"></use>
+</g>
+</g>
+ <use xlink:href="#E1-MJSZ3-29" x="3896" y="-1"></use>
+</g>
+ <use xlink:href="#E1-MJSZ3-29" x="6109" y="-1"></use>
+</g>
+ <use xlink:href="#E1-MJMATHI-73" x="12963" y="0"></use>
+ <use xlink:href="#E1-MJMATHI-69" x="13433" y="0"></use>
+ <use xlink:href="#E1-MJMATHI-6E" x="13778" y="0"></use>
+<g transform="translate(14545,0)">
+ <use xlink:href="#E1-MJSZ2-28"></use>
+ <use xlink:href="#E1-MJMATHI-3C0" x="597" y="0"></use>
+<g transform="translate(1171,0)">
+<g transform="translate(120,0)">
+<rect stroke="none" width="696" height="60" x="0" y="220"></rect>
+ <use xlink:href="#E1-MJMATHI-79" x="99" y="725"></use>
+ <use xlink:href="#E1-MJMATHI-68" x="60" y="-715"></use>
+</g>
+</g>
+ <use xlink:href="#E1-MJSZ2-29" x="2107" y="-1"></use>
+</g>
+</g>
+</svg>
+</p><p></p><p>The field <em>U</em> plotted in <em>x</em>, <em>y</em> looks something like this:</p><p><img alt="Analytical Field" src="assets/img/webrtc-part-1/analitical.png" title="Analytical Field" /></p><p>Replacing the first equation with this <em>U</em> function we get:</p><p></p><p class="mathjax"><svg xmlns:xlink="http://www.w3.org/1999/xlink" width="48.117ex" height="6.343ex" style="vertical-align: -2.505ex;" viewBox="0 -1652.5 20716.9 2730.8" role="img" focusable="false" xmlns="http://www.w3.org/2000/svg" aria-labelledby="MathJax-SVG-1-Title">
+<title id="MathJax-SVG-1-Title">left-parenthesis StartFraction partial-differential squared Over partial-differential x squared EndFraction plus StartFraction partial-differential squared Over partial-differential y squared EndFraction right-parenthesis upper U left-parenthesis x comma y right-parenthesis equals upper U left-parenthesis x comma y right-parenthesis left-parenthesis minus StartFraction pi squared Over h squared EndFraction minus StartFraction pi squared Over w squared EndFraction right-parenthesis</title>
+<defs aria-hidden="true">
+<path stroke-width="1" id="E1-MJMAIN-28" d="M94 250Q94 319 104 381T127 488T164 576T202 643T244 695T277 729T302 750H315H319Q333 750 333 741Q333 738 316 720T275 667T226 581T184 443T167 250T184 58T225 -81T274 -167T316 -220T333 -241Q333 -250 318 -250H315H302L274 -226Q180 -141 137 -14T94 250Z"></path>
+<path stroke-width="1" id="E1-MJMAIN-2202" d="M202 508Q179 508 169 520T158 547Q158 557 164 577T185 624T230 675T301 710L333 715H345Q378 715 384 714Q447 703 489 661T549 568T566 457Q566 362 519 240T402 53Q321 -22 223 -22Q123 -22 73 56Q42 102 42 148V159Q42 276 129 370T322 465Q383 465 414 434T455 367L458 378Q478 461 478 515Q478 603 437 639T344 676Q266 676 223 612Q264 606 264 572Q264 547 246 528T202 508ZM430 306Q430 372 401 400T333 428Q270 428 222 382Q197 354 183 323T150 221Q132 149 132 116Q132 21 232 21Q244 21 250 22Q327 35 374 112Q389 137 409 196T430 306Z"></path>
+<path stroke-width="1" id="E1-MJMAIN-32" d="M109 429Q82 429 66 447T50 491Q50 562 103 614T235 666Q326 666 387 610T449 465Q449 422 429 383T381 315T301 241Q265 210 201 149L142 93L218 92Q375 92 385 97Q392 99 409 186V189H449V186Q448 183 436 95T421 3V0H50V19V31Q50 38 56 46T86 81Q115 113 136 137Q145 147 170 174T204 211T233 244T261 278T284 308T305 340T320 369T333 401T340 431T343 464Q343 527 309 573T212 619Q179 619 154 602T119 569T109 550Q109 549 114 549Q132 549 151 535T170 489Q170 464 154 447T109 429Z"></path>
+<path stroke-width="1" id="E1-MJMATHI-78" d="M52 289Q59 331 106 386T222 442Q257 442 286 424T329 379Q371 442 430 442Q467 442 494 420T522 361Q522 332 508 314T481 292T458 288Q439 288 427 299T415 328Q415 374 465 391Q454 404 425 404Q412 404 406 402Q368 386 350 336Q290 115 290 78Q290 50 306 38T341 26Q378 26 414 59T463 140Q466 150 469 151T485 153H489Q504 153 504 145Q504 144 502 134Q486 77 440 33T333 -11Q263 -11 227 52Q186 -10 133 -10H127Q78 -10 57 16T35 71Q35 103 54 123T99 143Q142 143 142 101Q142 81 130 66T107 46T94 41L91 40Q91 39 97 36T113 29T132 26Q168 26 194 71Q203 87 217 139T245 247T261 313Q266 340 266 352Q266 380 251 392T217 404Q177 404 142 372T93 290Q91 281 88 280T72 278H58Q52 284 52 289Z"></path>
+<path stroke-width="1" id="E1-MJMAIN-2B" d="M56 237T56 250T70 270H369V420L370 570Q380 583 389 583Q402 583 409 568V270H707Q722 262 722 250T707 230H409V-68Q401 -82 391 -82H389H387Q375 -82 369 -68V230H70Q56 237 56 250Z"></path>
+<path stroke-width="1" id="E1-MJMATHI-79" d="M21 287Q21 301 36 335T84 406T158 442Q199 442 224 419T250 355Q248 336 247 334Q247 331 231 288T198 191T182 105Q182 62 196 45T238 27Q261 27 281 38T312 61T339 94Q339 95 344 114T358 173T377 247Q415 397 419 404Q432 431 462 431Q475 431 483 424T494 412T496 403Q496 390 447 193T391 -23Q363 -106 294 -155T156 -205Q111 -205 77 -183T43 -117Q43 -95 50 -80T69 -58T89 -48T106 -45Q150 -45 150 -87Q150 -107 138 -122T115 -142T102 -147L99 -148Q101 -153 118 -160T152 -167H160Q177 -167 186 -165Q219 -156 247 -127T290 -65T313 -9T321 21L315 17Q309 13 296 6T270 -6Q250 -11 231 -11Q185 -11 150 11T104 82Q103 89 103 113Q103 170 138 262T173 379Q173 380 173 381Q173 390 173 393T169 400T158 404H154Q131 404 112 385T82 344T65 302T57 280Q55 278 41 278H27Q21 284 21 287Z"></path>
+<path stroke-width="1" id="E1-MJMAIN-29" d="M60 749L64 750Q69 750 74 750H86L114 726Q208 641 251 514T294 250Q294 182 284 119T261 12T224 -76T186 -143T145 -194T113 -227T90 -246Q87 -249 86 -250H74Q66 -250 63 -250T58 -247T55 -238Q56 -237 66 -225Q221 -64 221 250T66 725Q56 737 55 738Q55 746 60 749Z"></path>
+<path stroke-width="1" id="E1-MJSZ3-28" d="M701 -940Q701 -943 695 -949H664Q662 -947 636 -922T591 -879T537 -818T475 -737T412 -636T350 -511T295 -362T250 -186T221 17T209 251Q209 962 573 1361Q596 1386 616 1405T649 1437T664 1450H695Q701 1444 701 1441Q701 1436 681 1415T629 1356T557 1261T476 1118T400 927T340 675T308 359Q306 321 306 250Q306 -139 400 -430T690 -924Q701 -936 701 -940Z"></path>
+<path stroke-width="1" id="E1-MJSZ3-29" d="M34 1438Q34 1446 37 1448T50 1450H56H71Q73 1448 99 1423T144 1380T198 1319T260 1238T323 1137T385 1013T440 864T485 688T514 485T526 251Q526 134 519 53Q472 -519 162 -860Q139 -885 119 -904T86 -936T71 -949H56Q43 -949 39 -947T34 -937Q88 -883 140 -813Q428 -430 428 251Q428 453 402 628T338 922T245 1146T145 1309T46 1425Q44 1427 42 1429T39 1433T36 1436L34 1438Z"></path>
+<path stroke-width="1" id="E1-MJMATHI-55" d="M107 637Q73 637 71 641Q70 643 70 649Q70 673 81 682Q83 683 98 683Q139 681 234 681Q268 681 297 681T342 682T362 682Q378 682 378 672Q378 670 376 658Q371 641 366 638H364Q362 638 359 638T352 638T343 637T334 637Q295 636 284 634T266 623Q265 621 238 518T184 302T154 169Q152 155 152 140Q152 86 183 55T269 24Q336 24 403 69T501 205L552 406Q599 598 599 606Q599 633 535 637Q511 637 511 648Q511 650 513 660Q517 676 519 679T529 683Q532 683 561 682T645 680Q696 680 723 681T752 682Q767 682 767 672Q767 650 759 642Q756 637 737 637Q666 633 648 597Q646 592 598 404Q557 235 548 205Q515 105 433 42T263 -22Q171 -22 116 34T60 167V183Q60 201 115 421Q164 622 164 628Q164 635 107 637Z"></path>
+<path stroke-width="1" id="E1-MJMAIN-2C" d="M78 35T78 60T94 103T137 121Q165 121 187 96T210 8Q210 -27 201 -60T180 -117T154 -158T130 -185T117 -194Q113 -194 104 -185T95 -172Q95 -168 106 -156T131 -126T157 -76T173 -3V9L172 8Q170 7 167 6T161 3T152 1T140 0Q113 0 96 17Z"></path>
+<path stroke-width="1" id="E1-MJMAIN-3D" d="M56 347Q56 360 70 367H707Q722 359 722 347Q722 336 708 328L390 327H72Q56 332 56 347ZM56 153Q56 168 72 173H708Q722 163 722 153Q722 140 707 133H70Q56 140 56 153Z"></path>
+<path stroke-width="1" id="E1-MJMAIN-2212" d="M84 237T84 250T98 270H679Q694 262 694 250T679 230H98Q84 237 84 250Z"></path>
+<path stroke-width="1" id="E1-MJMATHI-3C0" d="M132 -11Q98 -11 98 22V33L111 61Q186 219 220 334L228 358H196Q158 358 142 355T103 336Q92 329 81 318T62 297T53 285Q51 284 38 284Q19 284 19 294Q19 300 38 329T93 391T164 429Q171 431 389 431Q549 431 553 430Q573 423 573 402Q573 371 541 360Q535 358 472 358H408L405 341Q393 269 393 222Q393 170 402 129T421 65T431 37Q431 20 417 5T381 -10Q370 -10 363 -7T347 17T331 77Q330 86 330 121Q330 170 339 226T357 318T367 358H269L268 354Q268 351 249 275T206 114T175 17Q164 -11 132 -11Z"></path>
+<path stroke-width="1" id="E1-MJMATHI-68" d="M137 683Q138 683 209 688T282 694Q294 694 294 685Q294 674 258 534Q220 386 220 383Q220 381 227 388Q288 442 357 442Q411 442 444 415T478 336Q478 285 440 178T402 50Q403 36 407 31T422 26Q450 26 474 56T513 138Q516 149 519 151T535 153Q555 153 555 145Q555 144 551 130Q535 71 500 33Q466 -10 419 -10H414Q367 -10 346 17T325 74Q325 90 361 192T398 345Q398 404 354 404H349Q266 404 205 306L198 293L164 158Q132 28 127 16Q114 -11 83 -11Q69 -11 59 -2T48 16Q48 30 121 320L195 616Q195 629 188 632T149 637H128Q122 643 122 645T124 664Q129 683 137 683Z"></path>
+<path stroke-width="1" id="E1-MJMATHI-77" d="M580 385Q580 406 599 424T641 443Q659 443 674 425T690 368Q690 339 671 253Q656 197 644 161T609 80T554 12T482 -11Q438 -11 404 5T355 48Q354 47 352 44Q311 -11 252 -11Q226 -11 202 -5T155 14T118 53T104 116Q104 170 138 262T173 379Q173 380 173 381Q173 390 173 393T169 400T158 404H154Q131 404 112 385T82 344T65 302T57 280Q55 278 41 278H27Q21 284 21 287Q21 293 29 315T52 366T96 418T161 441Q204 441 227 416T250 358Q250 340 217 250T184 111Q184 65 205 46T258 26Q301 26 334 87L339 96V119Q339 122 339 128T340 136T341 143T342 152T345 165T348 182T354 206T362 238T373 281Q402 395 406 404Q419 431 449 431Q468 431 475 421T483 402Q483 389 454 274T422 142Q420 131 420 107V100Q420 85 423 71T442 42T487 26Q558 26 600 148Q609 171 620 213T632 273Q632 306 619 325T593 357T580 385Z"></path>
+</defs>
+<g stroke="currentColor" fill="currentColor" stroke-width="0" transform="matrix(1 0 0 -1 0 0)" aria-hidden="true">
+ <use xlink:href="#E1-MJSZ3-28"></use>
+<g transform="translate(736,0)">
+<g transform="translate(120,0)">
+<rect stroke="none" width="1713" height="60" x="0" y="220"></rect>
+<g transform="translate(340,676)">
+ <use xlink:href="#E1-MJMAIN-2202" x="0" y="0"></use>
+ <use transform="scale(0.707)" xlink:href="#E1-MJMAIN-32" x="817" y="513"></use>
+</g>
+<g transform="translate(60,-780)">
+ <use xlink:href="#E1-MJMAIN-2202" x="0" y="0"></use>
+<g transform="translate(567,0)">
+ <use xlink:href="#E1-MJMATHI-78" x="0" y="0"></use>
+ <use transform="scale(0.707)" xlink:href="#E1-MJMAIN-32" x="809" y="408"></use>
+</g>
+</g>
+</g>
+</g>
+ <use xlink:href="#E1-MJMAIN-2B" x="2912" y="0"></use>
+<g transform="translate(3691,0)">
+<g transform="translate(342,0)">
+<rect stroke="none" width="1641" height="60" x="0" y="220"></rect>
+<g transform="translate(304,676)">
+ <use xlink:href="#E1-MJMAIN-2202" x="0" y="0"></use>
+ <use transform="scale(0.707)" xlink:href="#E1-MJMAIN-32" x="817" y="513"></use>
+</g>
+<g transform="translate(60,-780)">
+ <use xlink:href="#E1-MJMAIN-2202" x="0" y="0"></use>
+<g transform="translate(567,0)">
+ <use xlink:href="#E1-MJMATHI-79" x="0" y="0"></use>
+ <use transform="scale(0.707)" xlink:href="#E1-MJMAIN-32" x="706" y="408"></use>
+</g>
+</g>
+</g>
+</g>
+ <use xlink:href="#E1-MJSZ3-29" x="5794" y="-1"></use>
+ <use xlink:href="#E1-MJMATHI-55" x="6697" y="0"></use>
+ <use xlink:href="#E1-MJMAIN-28" x="7465" y="0"></use>
+ <use xlink:href="#E1-MJMATHI-78" x="7854" y="0"></use>
+ <use xlink:href="#E1-MJMAIN-2C" x="8427" y="0"></use>
+ <use xlink:href="#E1-MJMATHI-79" x="8872" y="0"></use>
+ <use xlink:href="#E1-MJMAIN-29" x="9369" y="0"></use>
+ <use xlink:href="#E1-MJMAIN-3D" x="10037" y="0"></use>
+ <use xlink:href="#E1-MJMATHI-55" x="11093" y="0"></use>
+ <use xlink:href="#E1-MJMAIN-28" x="11860" y="0"></use>
+ <use xlink:href="#E1-MJMATHI-78" x="12250" y="0"></use>
+ <use xlink:href="#E1-MJMAIN-2C" x="12822" y="0"></use>
+ <use xlink:href="#E1-MJMATHI-79" x="13267" y="0"></use>
+ <use xlink:href="#E1-MJMAIN-29" x="13765" y="0"></use>
+<g transform="translate(14321,0)">
+ <use xlink:href="#E1-MJSZ3-28"></use>
+ <use xlink:href="#E1-MJMAIN-2212" x="736" y="0"></use>
+<g transform="translate(1515,0)">
+<g transform="translate(120,0)">
+<rect stroke="none" width="1150" height="60" x="0" y="220"></rect>
+<g transform="translate(61,676)">
+ <use xlink:href="#E1-MJMATHI-3C0" x="0" y="0"></use>
+ <use transform="scale(0.707)" xlink:href="#E1-MJMAIN-32" x="812" y="513"></use>
+</g>
+<g transform="translate(60,-780)">
+ <use xlink:href="#E1-MJMATHI-68" x="0" y="0"></use>
+ <use transform="scale(0.707)" xlink:href="#E1-MJMAIN-32" x="815" y="408"></use>
+</g>
+</g>
+</g>
+ <use xlink:href="#E1-MJMAIN-2212" x="3127" y="0"></use>
+<g transform="translate(3906,0)">
+<g transform="translate(342,0)">
+<rect stroke="none" width="1290" height="60" x="0" y="220"></rect>
+<g transform="translate(131,676)">
+ <use xlink:href="#E1-MJMATHI-3C0" x="0" y="0"></use>
+ <use transform="scale(0.707)" xlink:href="#E1-MJMAIN-32" x="812" y="513"></use>
+</g>
+<g transform="translate(60,-780)">
+ <use xlink:href="#E1-MJMATHI-77" x="0" y="0"></use>
+ <use transform="scale(0.707)" xlink:href="#E1-MJMAIN-32" x="1013" y="408"></use>
+</g>
+</g>
+</g>
+ <use xlink:href="#E1-MJSZ3-29" x="5658" y="-1"></use>
+</g>
+</g>
+</svg>
+</p><p></p><p>It's important to notice that our <em>U</em> function doesn't have any practical physical meaning. It's just a way to test a solver of a differential equation, of which we have an analytical solution.</p><h2>Numerical Model</h2><p>The next step is to discretize the equation and obtain an algebraic formula for <em>U</em> that we can code. I won't go into details about the deduction because this is an extensive topic but you can find many references all over the internet, <a href="http://www.ece.utah.edu/~ece6340/LECTURES/Feb1/Nagel20201220-20Solving20the20Generalized20Poisson20Equation20using%20FDM.pdf">like this one</a>.</p><p>Basically, the idea is to approximate the derivative in an array of points in the domain of the solution. The points are equally spread in <em>x</em> and <em>y</em> like in the image bellow:</p><p><img alt="points" src="assets/img/webrtc-part-1/domain.png" title="Points" /></p><p>In the image, <em>h</em> is the distance between two points. In the x and y direction, this distance will be called <em>Δx</em> and <em>Δy</em>, respectively. Here's the numerical formula for our equation:</p><p></p><p class="mathjax"><svg xmlns:xlink="http://www.w3.org/1999/xlink" width="27.423ex" height="6.009ex" style="vertical-align: -2.671ex;" viewBox="0 -1437.2 11806.9 2587.3" role="img" focusable="false" xmlns="http://www.w3.org/2000/svg" aria-labelledby="MathJax-SVG-1-Title">
+<title id="MathJax-SVG-1-Title">u prime Subscript i comma j Baseline equals minus StartFraction 1 Over negative 2 slash normal upper Delta x squared minus 2 slash normal upper Delta y squared EndFraction period</title>
+<defs aria-hidden="true">
+<path stroke-width="1" id="E1-MJMATHI-75" d="M21 287Q21 295 30 318T55 370T99 420T158 442Q204 442 227 417T250 358Q250 340 216 246T182 105Q182 62 196 45T238 27T291 44T328 78L339 95Q341 99 377 247Q407 367 413 387T427 416Q444 431 463 431Q480 431 488 421T496 402L420 84Q419 79 419 68Q419 43 426 35T447 26Q469 29 482 57T512 145Q514 153 532 153Q551 153 551 144Q550 139 549 130T540 98T523 55T498 17T462 -8Q454 -10 438 -10Q372 -10 347 46Q345 45 336 36T318 21T296 6T267 -6T233 -11Q189 -11 155 7Q103 38 103 113Q103 170 138 262T173 379Q173 380 173 381Q173 390 173 393T169 400T158 404H154Q131 404 112 385T82 344T65 302T57 280Q55 278 41 278H27Q21 284 21 287Z"></path>
+<path stroke-width="1" id="E1-MJMAIN-2032" d="M79 43Q73 43 52 49T30 61Q30 68 85 293T146 528Q161 560 198 560Q218 560 240 545T262 501Q262 496 260 486Q259 479 173 263T84 45T79 43Z"></path>
+<path stroke-width="1" id="E1-MJMATHI-69" d="M184 600Q184 624 203 642T247 661Q265 661 277 649T290 619Q290 596 270 577T226 557Q211 557 198 567T184 600ZM21 287Q21 295 30 318T54 369T98 420T158 442Q197 442 223 419T250 357Q250 340 236 301T196 196T154 83Q149 61 149 51Q149 26 166 26Q175 26 185 29T208 43T235 78T260 137Q263 149 265 151T282 153Q302 153 302 143Q302 135 293 112T268 61T223 11T161 -11Q129 -11 102 10T74 74Q74 91 79 106T122 220Q160 321 166 341T173 380Q173 404 156 404H154Q124 404 99 371T61 287Q60 286 59 284T58 281T56 279T53 278T49 278T41 278H27Q21 284 21 287Z"></path>
+<path stroke-width="1" id="E1-MJMAIN-2C" d="M78 35T78 60T94 103T137 121Q165 121 187 96T210 8Q210 -27 201 -60T180 -117T154 -158T130 -185T117 -194Q113 -194 104 -185T95 -172Q95 -168 106 -156T131 -126T157 -76T173 -3V9L172 8Q170 7 167 6T161 3T152 1T140 0Q113 0 96 17Z"></path>
+<path stroke-width="1" id="E1-MJMATHI-6A" d="M297 596Q297 627 318 644T361 661Q378 661 389 651T403 623Q403 595 384 576T340 557Q322 557 310 567T297 596ZM288 376Q288 405 262 405Q240 405 220 393T185 362T161 325T144 293L137 279Q135 278 121 278H107Q101 284 101 286T105 299Q126 348 164 391T252 441Q253 441 260 441T272 442Q296 441 316 432Q341 418 354 401T367 348V332L318 133Q267 -67 264 -75Q246 -125 194 -164T75 -204Q25 -204 7 -183T-12 -137Q-12 -110 7 -91T53 -71Q70 -71 82 -81T95 -112Q95 -148 63 -167Q69 -168 77 -168Q111 -168 139 -140T182 -74L193 -32Q204 11 219 72T251 197T278 308T289 365Q289 372 288 376Z"></path>
+<path stroke-width="1" id="E1-MJMAIN-3D" d="M56 347Q56 360 70 367H707Q722 359 722 347Q722 336 708 328L390 327H72Q56 332 56 347ZM56 153Q56 168 72 173H708Q722 163 722 153Q722 140 707 133H70Q56 140 56 153Z"></path>
+<path stroke-width="1" id="E1-MJMAIN-2212" d="M84 237T84 250T98 270H679Q694 262 694 250T679 230H98Q84 237 84 250Z"></path>
+<path stroke-width="1" id="E1-MJMAIN-31" d="M213 578L200 573Q186 568 160 563T102 556H83V602H102Q149 604 189 617T245 641T273 663Q275 666 285 666Q294 666 302 660V361L303 61Q310 54 315 52T339 48T401 46H427V0H416Q395 3 257 3Q121 3 100 0H88V46H114Q136 46 152 46T177 47T193 50T201 52T207 57T213 61V578Z"></path>
+<path stroke-width="1" id="E1-MJMAIN-32" d="M109 429Q82 429 66 447T50 491Q50 562 103 614T235 666Q326 666 387 610T449 465Q449 422 429 383T381 315T301 241Q265 210 201 149L142 93L218 92Q375 92 385 97Q392 99 409 186V189H449V186Q448 183 436 95T421 3V0H50V19V31Q50 38 56 46T86 81Q115 113 136 137Q145 147 170 174T204 211T233 244T261 278T284 308T305 340T320 369T333 401T340 431T343 464Q343 527 309 573T212 619Q179 619 154 602T119 569T109 550Q109 549 114 549Q132 549 151 535T170 489Q170 464 154 447T109 429Z"></path>
+<path stroke-width="1" id="E1-MJMAIN-2F" d="M423 750Q432 750 438 744T444 730Q444 725 271 248T92 -240Q85 -250 75 -250Q68 -250 62 -245T56 -231Q56 -221 230 257T407 740Q411 750 423 750Z"></path>
+<path stroke-width="1" id="E1-MJMAIN-394" d="M51 0Q46 4 46 7Q46 9 215 357T388 709Q391 716 416 716Q439 716 444 709Q447 705 616 357T786 7Q786 4 781 0H51ZM507 344L384 596L137 92L383 91H630Q630 93 507 344Z"></path>
+<path stroke-width="1" id="E1-MJMATHI-78" d="M52 289Q59 331 106 386T222 442Q257 442 286 424T329 379Q371 442 430 442Q467 442 494 420T522 361Q522 332 508 314T481 292T458 288Q439 288 427 299T415 328Q415 374 465 391Q454 404 425 404Q412 404 406 402Q368 386 350 336Q290 115 290 78Q290 50 306 38T341 26Q378 26 414 59T463 140Q466 150 469 151T485 153H489Q504 153 504 145Q504 144 502 134Q486 77 440 33T333 -11Q263 -11 227 52Q186 -10 133 -10H127Q78 -10 57 16T35 71Q35 103 54 123T99 143Q142 143 142 101Q142 81 130 66T107 46T94 41L91 40Q91 39 97 36T113 29T132 26Q168 26 194 71Q203 87 217 139T245 247T261 313Q266 340 266 352Q266 380 251 392T217 404Q177 404 142 372T93 290Q91 281 88 280T72 278H58Q52 284 52 289Z"></path>
+<path stroke-width="1" id="E1-MJMATHI-79" d="M21 287Q21 301 36 335T84 406T158 442Q199 442 224 419T250 355Q248 336 247 334Q247 331 231 288T198 191T182 105Q182 62 196 45T238 27Q261 27 281 38T312 61T339 94Q339 95 344 114T358 173T377 247Q415 397 419 404Q432 431 462 431Q475 431 483 424T494 412T496 403Q496 390 447 193T391 -23Q363 -106 294 -155T156 -205Q111 -205 77 -183T43 -117Q43 -95 50 -80T69 -58T89 -48T106 -45Q150 -45 150 -87Q150 -107 138 -122T115 -142T102 -147L99 -148Q101 -153 118 -160T152 -167H160Q177 -167 186 -165Q219 -156 247 -127T290 -65T313 -9T321 21L315 17Q309 13 296 6T270 -6Q250 -11 231 -11Q185 -11 150 11T104 82Q103 89 103 113Q103 170 138 262T173 379Q173 380 173 381Q173 390 173 393T169 400T158 404H154Q131 404 112 385T82 344T65 302T57 280Q55 278 41 278H27Q21 284 21 287Z"></path>
+<path stroke-width="1" id="E1-MJMAIN-2E" d="M78 60Q78 84 95 102T138 120Q162 120 180 104T199 61Q199 36 182 18T139 0T96 17T78 60Z"></path>
+</defs>
+<g stroke="currentColor" fill="currentColor" stroke-width="0" transform="matrix(1 0 0 -1 0 0)" aria-hidden="true">
+ <use xlink:href="#E1-MJMATHI-75" x="0" y="0"></use>
+ <use transform="scale(0.707)" xlink:href="#E1-MJMAIN-2032" x="809" y="445"></use>
+<g transform="translate(572,-304)">
+ <use transform="scale(0.707)" xlink:href="#E1-MJMATHI-69" x="0" y="0"></use>
+ <use transform="scale(0.707)" xlink:href="#E1-MJMAIN-2C" x="345" y="0"></use>
+ <use transform="scale(0.707)" xlink:href="#E1-MJMATHI-6A" x="624" y="0"></use>
+</g>
+ <use xlink:href="#E1-MJMAIN-3D" x="1683" y="0"></use>
+ <use xlink:href="#E1-MJMAIN-2212" x="2739" y="0"></use>
+<g transform="translate(3517,0)">
+<g transform="translate(120,0)">
+<rect stroke="none" width="7770" height="60" x="0" y="220"></rect>
+ <use xlink:href="#E1-MJMAIN-31" x="3634" y="676"></use>
+<g transform="translate(60,-780)">
+ <use xlink:href="#E1-MJMAIN-2212" x="0" y="0"></use>
+ <use xlink:href="#E1-MJMAIN-32" x="778" y="0"></use>
+ <use xlink:href="#E1-MJMAIN-2F" x="1279" y="0"></use>
+ <use xlink:href="#E1-MJMAIN-394" x="1779" y="0"></use>
+<g transform="translate(2613,0)">
+ <use xlink:href="#E1-MJMATHI-78" x="0" y="0"></use>
+ <use transform="scale(0.707)" xlink:href="#E1-MJMAIN-32" x="809" y="408"></use>
+</g>
+ <use xlink:href="#E1-MJMAIN-2212" x="3861" y="0"></use>
+ <use xlink:href="#E1-MJMAIN-32" x="4862" y="0"></use>
+ <use xlink:href="#E1-MJMAIN-2F" x="5362" y="0"></use>
+ <use xlink:href="#E1-MJMAIN-394" x="5863" y="0"></use>
+<g transform="translate(6696,0)">
+ <use xlink:href="#E1-MJMATHI-79" x="0" y="0"></use>
+ <use transform="scale(0.707)" xlink:href="#E1-MJMAIN-32" x="706" y="408"></use>
+</g>
+</g>
+</g>
+</g>
+ <use xlink:href="#E1-MJMAIN-2E" x="11528" y="0"></use>
+</g>
+</svg>
+</p><p></p><p></p><p class="mathjax"><svg xmlns:xlink="http://www.w3.org/1999/xlink" width="62.993ex" height="6.343ex" style="vertical-align: -2.505ex;" viewBox="0 -1652.5 27121.7 2730.8" role="img" focusable="false" xmlns="http://www.w3.org/2000/svg" aria-labelledby="MathJax-SVG-1-Title">
+<title id="MathJax-SVG-1-Title">period left-parenthesis StartFraction u Subscript i comma j minus 1 Baseline plus u Subscript i comma j plus 1 Baseline Over normal upper Delta x squared EndFraction plus StartFraction u Subscript i plus 1 comma j Baseline plus u Subscript i minus 1 comma j Baseline Over normal upper Delta y squared EndFraction minus upper U left-parenthesis x Subscript j Baseline comma y Subscript i Baseline right-parenthesis left-parenthesis minus StartFraction pi squared Over h squared EndFraction minus StartFraction pi squared Over w squared EndFraction right-parenthesis right-parenthesis</title>
+<defs aria-hidden="true">
+<path stroke-width="1" id="E1-MJMAIN-2E" d="M78 60Q78 84 95 102T138 120Q162 120 180 104T199 61Q199 36 182 18T139 0T96 17T78 60Z"></path>
+<path stroke-width="1" id="E1-MJMAIN-28" d="M94 250Q94 319 104 381T127 488T164 576T202 643T244 695T277 729T302 750H315H319Q333 750 333 741Q333 738 316 720T275 667T226 581T184 443T167 250T184 58T225 -81T274 -167T316 -220T333 -241Q333 -250 318 -250H315H302L274 -226Q180 -141 137 -14T94 250Z"></path>
+<path stroke-width="1" id="E1-MJMATHI-75" d="M21 287Q21 295 30 318T55 370T99 420T158 442Q204 442 227 417T250 358Q250 340 216 246T182 105Q182 62 196 45T238 27T291 44T328 78L339 95Q341 99 377 247Q407 367 413 387T427 416Q444 431 463 431Q480 431 488 421T496 402L420 84Q419 79 419 68Q419 43 426 35T447 26Q469 29 482 57T512 145Q514 153 532 153Q551 153 551 144Q550 139 549 130T540 98T523 55T498 17T462 -8Q454 -10 438 -10Q372 -10 347 46Q345 45 336 36T318 21T296 6T267 -6T233 -11Q189 -11 155 7Q103 38 103 113Q103 170 138 262T173 379Q173 380 173 381Q173 390 173 393T169 400T158 404H154Q131 404 112 385T82 344T65 302T57 280Q55 278 41 278H27Q21 284 21 287Z"></path>
+<path stroke-width="1" id="E1-MJMATHI-69" d="M184 600Q184 624 203 642T247 661Q265 661 277 649T290 619Q290 596 270 577T226 557Q211 557 198 567T184 600ZM21 287Q21 295 30 318T54 369T98 420T158 442Q197 442 223 419T250 357Q250 340 236 301T196 196T154 83Q149 61 149 51Q149 26 166 26Q175 26 185 29T208 43T235 78T260 137Q263 149 265 151T282 153Q302 153 302 143Q302 135 293 112T268 61T223 11T161 -11Q129 -11 102 10T74 74Q74 91 79 106T122 220Q160 321 166 341T173 380Q173 404 156 404H154Q124 404 99 371T61 287Q60 286 59 284T58 281T56 279T53 278T49 278T41 278H27Q21 284 21 287Z"></path>
+<path stroke-width="1" id="E1-MJMAIN-2C" d="M78 35T78 60T94 103T137 121Q165 121 187 96T210 8Q210 -27 201 -60T180 -117T154 -158T130 -185T117 -194Q113 -194 104 -185T95 -172Q95 -168 106 -156T131 -126T157 -76T173 -3V9L172 8Q170 7 167 6T161 3T152 1T140 0Q113 0 96 17Z"></path>
+<path stroke-width="1" id="E1-MJMATHI-6A" d="M297 596Q297 627 318 644T361 661Q378 661 389 651T403 623Q403 595 384 576T340 557Q322 557 310 567T297 596ZM288 376Q288 405 262 405Q240 405 220 393T185 362T161 325T144 293L137 279Q135 278 121 278H107Q101 284 101 286T105 299Q126 348 164 391T252 441Q253 441 260 441T272 442Q296 441 316 432Q341 418 354 401T367 348V332L318 133Q267 -67 264 -75Q246 -125 194 -164T75 -204Q25 -204 7 -183T-12 -137Q-12 -110 7 -91T53 -71Q70 -71 82 -81T95 -112Q95 -148 63 -167Q69 -168 77 -168Q111 -168 139 -140T182 -74L193 -32Q204 11 219 72T251 197T278 308T289 365Q289 372 288 376Z"></path>
+<path stroke-width="1" id="E1-MJMAIN-2212" d="M84 237T84 250T98 270H679Q694 262 694 250T679 230H98Q84 237 84 250Z"></path>
+<path stroke-width="1" id="E1-MJMAIN-31" d="M213 578L200 573Q186 568 160 563T102 556H83V602H102Q149 604 189 617T245 641T273 663Q275 666 285 666Q294 666 302 660V361L303 61Q310 54 315 52T339 48T401 46H427V0H416Q395 3 257 3Q121 3 100 0H88V46H114Q136 46 152 46T177 47T193 50T201 52T207 57T213 61V578Z"></path>
+<path stroke-width="1" id="E1-MJMAIN-2B" d="M56 237T56 250T70 270H369V420L370 570Q380 583 389 583Q402 583 409 568V270H707Q722 262 722 250T707 230H409V-68Q401 -82 391 -82H389H387Q375 -82 369 -68V230H70Q56 237 56 250Z"></path>
+<path stroke-width="1" id="E1-MJMAIN-394" d="M51 0Q46 4 46 7Q46 9 215 357T388 709Q391 716 416 716Q439 716 444 709Q447 705 616 357T786 7Q786 4 781 0H51ZM507 344L384 596L137 92L383 91H630Q630 93 507 344Z"></path>
+<path stroke-width="1" id="E1-MJMATHI-78" d="M52 289Q59 331 106 386T222 442Q257 442 286 424T329 379Q371 442 430 442Q467 442 494 420T522 361Q522 332 508 314T481 292T458 288Q439 288 427 299T415 328Q415 374 465 391Q454 404 425 404Q412 404 406 402Q368 386 350 336Q290 115 290 78Q290 50 306 38T341 26Q378 26 414 59T463 140Q466 150 469 151T485 153H489Q504 153 504 145Q504 144 502 134Q486 77 440 33T333 -11Q263 -11 227 52Q186 -10 133 -10H127Q78 -10 57 16T35 71Q35 103 54 123T99 143Q142 143 142 101Q142 81 130 66T107 46T94 41L91 40Q91 39 97 36T113 29T132 26Q168 26 194 71Q203 87 217 139T245 247T261 313Q266 340 266 352Q266 380 251 392T217 404Q177 404 142 372T93 290Q91 281 88 280T72 278H58Q52 284 52 289Z"></path>
+<path stroke-width="1" id="E1-MJMAIN-32" d="M109 429Q82 429 66 447T50 491Q50 562 103 614T235 666Q326 666 387 610T449 465Q449 422 429 383T381 315T301 241Q265 210 201 149L142 93L218 92Q375 92 385 97Q392 99 409 186V189H449V186Q448 183 436 95T421 3V0H50V19V31Q50 38 56 46T86 81Q115 113 136 137Q145 147 170 174T204 211T233 244T261 278T284 308T305 340T320 369T333 401T340 431T343 464Q343 527 309 573T212 619Q179 619 154 602T119 569T109 550Q109 549 114 549Q132 549 151 535T170 489Q170 464 154 447T109 429Z"></path>
+<path stroke-width="1" id="E1-MJMATHI-79" d="M21 287Q21 301 36 335T84 406T158 442Q199 442 224 419T250 355Q248 336 247 334Q247 331 231 288T198 191T182 105Q182 62 196 45T238 27Q261 27 281 38T312 61T339 94Q339 95 344 114T358 173T377 247Q415 397 419 404Q432 431 462 431Q475 431 483 424T494 412T496 403Q496 390 447 193T391 -23Q363 -106 294 -155T156 -205Q111 -205 77 -183T43 -117Q43 -95 50 -80T69 -58T89 -48T106 -45Q150 -45 150 -87Q150 -107 138 -122T115 -142T102 -147L99 -148Q101 -153 118 -160T152 -167H160Q177 -167 186 -165Q219 -156 247 -127T290 -65T313 -9T321 21L315 17Q309 13 296 6T270 -6Q250 -11 231 -11Q185 -11 150 11T104 82Q103 89 103 113Q103 170 138 262T173 379Q173 380 173 381Q173 390 173 393T169 400T158 404H154Q131 404 112 385T82 344T65 302T57 280Q55 278 41 278H27Q21 284 21 287Z"></path>
+<path stroke-width="1" id="E1-MJMATHI-55" d="M107 637Q73 637 71 641Q70 643 70 649Q70 673 81 682Q83 683 98 683Q139 681 234 681Q268 681 297 681T342 682T362 682Q378 682 378 672Q378 670 376 658Q371 641 366 638H364Q362 638 359 638T352 638T343 637T334 637Q295 636 284 634T266 623Q265 621 238 518T184 302T154 169Q152 155 152 140Q152 86 183 55T269 24Q336 24 403 69T501 205L552 406Q599 598 599 606Q599 633 535 637Q511 637 511 648Q511 650 513 660Q517 676 519 679T529 683Q532 683 561 682T645 680Q696 680 723 681T752 682Q767 682 767 672Q767 650 759 642Q756 637 737 637Q666 633 648 597Q646 592 598 404Q557 235 548 205Q515 105 433 42T263 -22Q171 -22 116 34T60 167V183Q60 201 115 421Q164 622 164 628Q164 635 107 637Z"></path>
+<path stroke-width="1" id="E1-MJMAIN-29" d="M60 749L64 750Q69 750 74 750H86L114 726Q208 641 251 514T294 250Q294 182 284 119T261 12T224 -76T186 -143T145 -194T113 -227T90 -246Q87 -249 86 -250H74Q66 -250 63 -250T58 -247T55 -238Q56 -237 66 -225Q221 -64 221 250T66 725Q56 737 55 738Q55 746 60 749Z"></path>
+<path stroke-width="1" id="E1-MJMATHI-3C0" d="M132 -11Q98 -11 98 22V33L111 61Q186 219 220 334L228 358H196Q158 358 142 355T103 336Q92 329 81 318T62 297T53 285Q51 284 38 284Q19 284 19 294Q19 300 38 329T93 391T164 429Q171 431 389 431Q549 431 553 430Q573 423 573 402Q573 371 541 360Q535 358 472 358H408L405 341Q393 269 393 222Q393 170 402 129T421 65T431 37Q431 20 417 5T381 -10Q370 -10 363 -7T347 17T331 77Q330 86 330 121Q330 170 339 226T357 318T367 358H269L268 354Q268 351 249 275T206 114T175 17Q164 -11 132 -11Z"></path>
+<path stroke-width="1" id="E1-MJMATHI-68" d="M137 683Q138 683 209 688T282 694Q294 694 294 685Q294 674 258 534Q220 386 220 383Q220 381 227 388Q288 442 357 442Q411 442 444 415T478 336Q478 285 440 178T402 50Q403 36 407 31T422 26Q450 26 474 56T513 138Q516 149 519 151T535 153Q555 153 555 145Q555 144 551 130Q535 71 500 33Q466 -10 419 -10H414Q367 -10 346 17T325 74Q325 90 361 192T398 345Q398 404 354 404H349Q266 404 205 306L198 293L164 158Q132 28 127 16Q114 -11 83 -11Q69 -11 59 -2T48 16Q48 30 121 320L195 616Q195 629 188 632T149 637H128Q122 643 122 645T124 664Q129 683 137 683Z"></path>
+<path stroke-width="1" id="E1-MJMATHI-77" d="M580 385Q580 406 599 424T641 443Q659 443 674 425T690 368Q690 339 671 253Q656 197 644 161T609 80T554 12T482 -11Q438 -11 404 5T355 48Q354 47 352 44Q311 -11 252 -11Q226 -11 202 -5T155 14T118 53T104 116Q104 170 138 262T173 379Q173 380 173 381Q173 390 173 393T169 400T158 404H154Q131 404 112 385T82 344T65 302T57 280Q55 278 41 278H27Q21 284 21 287Q21 293 29 315T52 366T96 418T161 441Q204 441 227 416T250 358Q250 340 217 250T184 111Q184 65 205 46T258 26Q301 26 334 87L339 96V119Q339 122 339 128T340 136T341 143T342 152T345 165T348 182T354 206T362 238T373 281Q402 395 406 404Q419 431 449 431Q468 431 475 421T483 402Q483 389 454 274T422 142Q420 131 420 107V100Q420 85 423 71T442 42T487 26Q558 26 600 148Q609 171 620 213T632 273Q632 306 619 325T593 357T580 385Z"></path>
+<path stroke-width="1" id="E1-MJSZ3-28" d="M701 -940Q701 -943 695 -949H664Q662 -947 636 -922T591 -879T537 -818T475 -737T412 -636T350 -511T295 -362T250 -186T221 17T209 251Q209 962 573 1361Q596 1386 616 1405T649 1437T664 1450H695Q701 1444 701 1441Q701 1436 681 1415T629 1356T557 1261T476 1118T400 927T340 675T308 359Q306 321 306 250Q306 -139 400 -430T690 -924Q701 -936 701 -940Z"></path>
+<path stroke-width="1" id="E1-MJSZ3-29" d="M34 1438Q34 1446 37 1448T50 1450H56H71Q73 1448 99 1423T144 1380T198 1319T260 1238T323 1137T385 1013T440 864T485 688T514 485T526 251Q526 134 519 53Q472 -519 162 -860Q139 -885 119 -904T86 -936T71 -949H56Q43 -949 39 -947T34 -937Q88 -883 140 -813Q428 -430 428 251Q428 453 402 628T338 922T245 1146T145 1309T46 1425Q44 1427 42 1429T39 1433T36 1436L34 1438Z"></path>
+</defs>
+<g stroke="currentColor" fill="currentColor" stroke-width="0" transform="matrix(1 0 0 -1 0 0)" aria-hidden="true">
+ <use xlink:href="#E1-MJMAIN-2E" x="0" y="0"></use>
+<g transform="translate(445,0)">
+ <use xlink:href="#E1-MJSZ3-28"></use>
+<g transform="translate(736,0)">
+<g transform="translate(120,0)">
+<rect stroke="none" width="5962" height="60" x="0" y="220"></rect>
+<g transform="translate(60,814)">
+ <use xlink:href="#E1-MJMATHI-75" x="0" y="0"></use>
+<g transform="translate(572,-150)">
+ <use transform="scale(0.707)" xlink:href="#E1-MJMATHI-69" x="0" y="0"></use>
+ <use transform="scale(0.707)" xlink:href="#E1-MJMAIN-2C" x="345" y="0"></use>
+ <use transform="scale(0.707)" xlink:href="#E1-MJMATHI-6A" x="624" y="0"></use>
+ <use transform="scale(0.707)" xlink:href="#E1-MJMAIN-2212" x="1036" y="0"></use>
+ <use transform="scale(0.707)" xlink:href="#E1-MJMAIN-31" x="1815" y="0"></use>
+</g>
+ <use xlink:href="#E1-MJMAIN-2B" x="2532" y="0"></use>
+<g transform="translate(3532,0)">
+ <use xlink:href="#E1-MJMATHI-75" x="0" y="0"></use>
+<g transform="translate(572,-150)">
+ <use transform="scale(0.707)" xlink:href="#E1-MJMATHI-69" x="0" y="0"></use>
+ <use transform="scale(0.707)" xlink:href="#E1-MJMAIN-2C" x="345" y="0"></use>
+ <use transform="scale(0.707)" xlink:href="#E1-MJMATHI-6A" x="624" y="0"></use>
+ <use transform="scale(0.707)" xlink:href="#E1-MJMAIN-2B" x="1036" y="0"></use>
+ <use transform="scale(0.707)" xlink:href="#E1-MJMAIN-31" x="1815" y="0"></use>
+</g>
+</g>
+</g>
+<g transform="translate(2051,-780)">
+ <use xlink:href="#E1-MJMAIN-394" x="0" y="0"></use>
+<g transform="translate(833,0)">
+ <use xlink:href="#E1-MJMATHI-78" x="0" y="0"></use>
+ <use transform="scale(0.707)" xlink:href="#E1-MJMAIN-32" x="809" y="408"></use>
+</g>
+</g>
+</g>
+</g>
+ <use xlink:href="#E1-MJMAIN-2B" x="7161" y="0"></use>
+<g transform="translate(7939,0)">
+<g transform="translate(342,0)">
+<rect stroke="none" width="5962" height="60" x="0" y="220"></rect>
+<g transform="translate(60,814)">
+ <use xlink:href="#E1-MJMATHI-75" x="0" y="0"></use>
+<g transform="translate(572,-150)">
+ <use transform="scale(0.707)" xlink:href="#E1-MJMATHI-69" x="0" y="0"></use>
+ <use transform="scale(0.707)" xlink:href="#E1-MJMAIN-2B" x="345" y="0"></use>
+ <use transform="scale(0.707)" xlink:href="#E1-MJMAIN-31" x="1124" y="0"></use>
+ <use transform="scale(0.707)" xlink:href="#E1-MJMAIN-2C" x="1624" y="0"></use>
+ <use transform="scale(0.707)" xlink:href="#E1-MJMATHI-6A" x="1903" y="0"></use>
+</g>
+ <use xlink:href="#E1-MJMAIN-2B" x="2532" y="0"></use>
+<g transform="translate(3532,0)">
+ <use xlink:href="#E1-MJMATHI-75" x="0" y="0"></use>
+<g transform="translate(572,-150)">
+ <use transform="scale(0.707)" xlink:href="#E1-MJMATHI-69" x="0" y="0"></use>
+ <use transform="scale(0.707)" xlink:href="#E1-MJMAIN-2212" x="345" y="0"></use>
+ <use transform="scale(0.707)" xlink:href="#E1-MJMAIN-31" x="1124" y="0"></use>
+ <use transform="scale(0.707)" xlink:href="#E1-MJMAIN-2C" x="1624" y="0"></use>
+ <use transform="scale(0.707)" xlink:href="#E1-MJMATHI-6A" x="1903" y="0"></use>
+</g>
+</g>
+</g>
+<g transform="translate(2087,-780)">
+ <use xlink:href="#E1-MJMAIN-394" x="0" y="0"></use>
+<g transform="translate(833,0)">
+ <use xlink:href="#E1-MJMATHI-79" x="0" y="0"></use>
+ <use transform="scale(0.707)" xlink:href="#E1-MJMAIN-32" x="706" y="408"></use>
+</g>
+</g>
+</g>
+</g>
+ <use xlink:href="#E1-MJMAIN-2212" x="14586" y="0"></use>
+ <use xlink:href="#E1-MJMATHI-55" x="15587" y="0"></use>
+ <use xlink:href="#E1-MJMAIN-28" x="16355" y="0"></use>
+<g transform="translate(16744,0)">
+ <use xlink:href="#E1-MJMATHI-78" x="0" y="0"></use>
+ <use transform="scale(0.707)" xlink:href="#E1-MJMATHI-6A" x="809" y="-213"></use>
+</g>
+ <use xlink:href="#E1-MJMAIN-2C" x="17708" y="0"></use>
+<g transform="translate(18153,0)">
+ <use xlink:href="#E1-MJMATHI-79" x="0" y="0"></use>
+ <use transform="scale(0.707)" xlink:href="#E1-MJMATHI-69" x="693" y="-213"></use>
+</g>
+ <use xlink:href="#E1-MJMAIN-29" x="18988" y="0"></use>
+<g transform="translate(19544,0)">
+ <use xlink:href="#E1-MJSZ3-28"></use>
+ <use xlink:href="#E1-MJMAIN-2212" x="736" y="0"></use>
+<g transform="translate(1515,0)">
+<g transform="translate(120,0)">
+<rect stroke="none" width="1150" height="60" x="0" y="220"></rect>
+<g transform="translate(61,676)">
+ <use xlink:href="#E1-MJMATHI-3C0" x="0" y="0"></use>
+ <use transform="scale(0.707)" xlink:href="#E1-MJMAIN-32" x="812" y="513"></use>
+</g>
+<g transform="translate(60,-780)">
+ <use xlink:href="#E1-MJMATHI-68" x="0" y="0"></use>
+ <use transform="scale(0.707)" xlink:href="#E1-MJMAIN-32" x="815" y="408"></use>
+</g>
+</g>
+</g>
+ <use xlink:href="#E1-MJMAIN-2212" x="3127" y="0"></use>
+<g transform="translate(3906,0)">
+<g transform="translate(342,0)">
+<rect stroke="none" width="1290" height="60" x="0" y="220"></rect>
+<g transform="translate(131,676)">
+ <use xlink:href="#E1-MJMATHI-3C0" x="0" y="0"></use>
+ <use transform="scale(0.707)" xlink:href="#E1-MJMAIN-32" x="812" y="513"></use>
+</g>
+<g transform="translate(60,-780)">
+ <use xlink:href="#E1-MJMATHI-77" x="0" y="0"></use>
+ <use transform="scale(0.707)" xlink:href="#E1-MJMAIN-32" x="1013" y="408"></use>
+</g>
+</g>
+</g>
+ <use xlink:href="#E1-MJSZ3-29" x="5658" y="-1"></use>
+</g>
+ <use xlink:href="#E1-MJSZ3-29" x="25940" y="-1"></use>
+</g>
+</g>
+</svg>
+</p><p></p><p>To compute the field <em>u</em> we follow this procedure: we start with all points set to <em>u = 0</em> and compute <em>u'</em> for every point <em>{i,j}</em>. We then repeat the process, computing the new values of <em>u'</em>, but now using the old values we computed earlier. The process is repeated until there is no significant difference between the new values and the old ones.</p><h2>Javascript Implementation</h2><p>I implemented the solver in node first so that I could have a version to test in my local machine. In CFD, testing is an important step and there are two steps to accept a numerical solution as valid. First you have to check if the numerical method is being solved correctly. This step is known as verification. Secondly, you have to check if the solution compares well with the equations. This is known as validation. This two steps are implemented in a small test suit. You can find the solver on a <a href="//github.com/fjsousa/poisson-solver">github repository</a>.</p><p>Here's a walkthrough of the solver:</p><p>To install it just run</p><pre><code>npm install fjsousa/poisson-solver</code></pre><p>Then, require and instantiate the solver:</p><pre><code class="Javascript">  <span class="hljs-keyword">var</span> Poisson = <span class="hljs-built_in">require</span>(<span class="hljs-string">'poisson-solver'</span>);
 
   <span class="hljs-comment">//Set conditions</span>
   <span class="hljs-keyword">var</span> conditions = {
@@ -11,10 +452,7 @@
   };
 
   <span class="hljs-comment">//Initialize solver</span>
-  <span class="hljs-keyword">var</span> poisson = <span class="hljs-keyword">new</span> Poisson(conditions);
-
-
-</div></code></pre><p>Here, <code>w</code> and <code>h</code> are the width and height of the domain. In this case, we are choosing an unitary value for both. <code>n</code> and <code>m</code> are the number of cells in the dimensions <em>x</em> and <em>y</em>.</p><p>Now we need to set the boundary conditions. According to our analytical solution, the value of the edges of the domain are zero, so we'll create 4 arrays with zero elements, for the north, south, east and west boundaries:</p><pre><code class="Javascript"><div>  <span class="hljs-keyword">var</span> N = [];
+  <span class="hljs-keyword">var</span> poisson = <span class="hljs-keyword">new</span> Poisson(conditions);</code></pre><p>Here, <code>w</code> and <code>h</code> are the width and height of the domain. In this case, we are choosing a unitary value for both. <code>n</code> and <code>m</code> are the number of cells in the dimensions <em>x</em> and <em>y</em>.</p><p>Now we need to set the boundary conditions. According to our analytical solution, the value at the edges of the domain is zero, so we'll create 4 arrays with zero elements, for the north, south, east and west boundaries:</p><pre><code class="Javascript">  <span class="hljs-keyword">var</span> N = [];
   <span class="hljs-keyword">var</span> S = [];
   <span class="hljs-keyword">var</span> E = [];
   <span class="hljs-keyword">var</span> W = [];
@@ -25,22 +463,15 @@
 
   <span class="hljs-comment">//Set Dirichlet boundary conditions to zero</span>
   poisson.setBoundaryConditions(N, S, E, W);
-
-
-</div></code></pre><p>Now we are ready to start the solver. We call the method poisson.solver and just have to define the maximum number of iterations and the final residue. The residue is a measurement of the difference between two consecutive <em>u</em> fields. The smaller the residue, the closer the solution is to a final solution.</p><pre><code class="Javascript"><div>  <span class="hljs-keyword">var</span> maxItterations = <span class="hljs-number">100000000</span>;
+</code></pre><p>Now we are ready to start the solver. We call the method <code>poisson.solver</code> and just have to define the maximum number of iterations and the final residue. The residue is a measurement of the difference between two consecutive <em>u</em> fields. The smaller the residue, the closer the solution is to a final solution.</p><pre><code class="Javascript">  <span class="hljs-keyword">var</span> maxItterations = <span class="hljs-number">100000000</span>;
   <span class="hljs-keyword">var</span> maxResidue = <span class="hljs-number">1E-9</span> ;
 
   <span class="hljs-keyword">var</span> output = poisson.solver( maxItterations, maxResidue);
-  <span class="hljs-built_in">console</span>.log(<span class="hljs-string">'Solver converged with'</span>, output.iterations, <span class="hljs-string">'iterations and'</span>, output.residue, <span class="hljs-string">'residue.'</span>);
 
-</div></code></pre><h2>Visualization</h2><p>The solver converges with 6100 iterations a residue of 9.988143389726145e-10.</p><pre><code class="bash"><div>  Solver: iteration <span class="hljs-comment"># 6200 with residue of 2.321164929065117e-9</span>
+  <span class="hljs-built_in">console</span>.log(<span class="hljs-string">'Solver converged with'</span>, output.iterations, <span class="hljs-string">'iterations and'</span>, output.residue, <span class="hljs-string">'residue.'</span>);</code></pre><h2>Visualization</h2><p>The solver converges with 6100 iterations a residue of 9.988143389726145e-10.</p><pre><code class="bash">  Solver: iteration <span class="hljs-comment"># 6200 with residue of 2.321164929065117e-9</span>
   Solver: iteration <span class="hljs-comment"># 6300 with residue of 1.8896603438688794e-9</span>
   Solver: iteration <span class="hljs-comment"># 6400 with residue of 1.5383724641902796e-9</span>
   Solver: iteration <span class="hljs-comment"># 6500 with residue of 1.252389003936899e-9</span>
   Solver: iteration <span class="hljs-comment"># 6600 with residue of 1.0195698719555473e-9</span>
-  Solver converged with 6610 iterations and 9.988143389726145e-10 residue.
-
-</div></code></pre><p>We can visualize the solution using the print method. This writes a <em>n x m</em> table wich you can load in a plotting software. I would recommend <a href="http://home.gna.org/veusz/">veusz</a>.</p><pre><code class="Javascript"><div>  <span class="hljs-comment">//Print solution</span>
-  poisson.print(<span class="hljs-string">'./field.txt'</span>, poisson.u.old);
-
-</div></code></pre><p><img alt="Numerical Field" src="assets/img/webrtc-part-1/numerical.png" title="Numerical" /></p><p>And that's it. In the next post, I'll show you how I developed from this single program poisson solver and distributed it among several browser tabs.</p></div></div></div></article></div></div></div></main><a class="back-to-top" href="#"></a></body><script src="assets/js/main.js" type="text/javascript"></script><script src="assets/js/rags.js" type="text/javascript"></script><script src="assets/js/fgm-main.js" type="text/javascript"></script></html>
+  Solver converged with 6610 iterations and 9.988143389726145e-10 residue.</code></pre><p>We can visualize the solution using the print method. This writes a <em>n x m</em> table wich you can load in a plotting software. I would recommend <a href="https://veusz.github.io/">veusz</a>.</p><pre><code class="Javascript">  <span class="hljs-comment">//Print solution</span>
+  poisson.print(<span class="hljs-string">'./field.txt'</span>, poisson.u.old);</code></pre><p><img alt="Numerical Field" src="assets/img/webrtc-part-1/numerical.png" title="Numerical" /></p><p>And that's it. In the next post, I'll show you how I developed from this single program poisson solver and distributed it among several browser tabs.</p></article></div></div></div></main><a class="back-to-top" href="#"></a></body><script src="assets/js/main.js" type="text/javascript"></script><script src="assets/js/rags.js" type="text/javascript"></script><script src="assets/js/fgm-main.js" type="text/javascript"></script></html>

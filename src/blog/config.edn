@@ -9,4 +9,5 @@
  :sub-title "Software Engineer"
  :meta-description "Personal website. Past projects, bit of blogging."
  :short-about "Flavio Sousa personal website. Past projects, bit of blogging."
+ :skip #{:about :available-styles}
  }

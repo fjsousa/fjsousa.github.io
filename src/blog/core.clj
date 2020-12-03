@@ -69,23 +69,36 @@
 
     (->>
      out
+     drop-last;;remove trailing /n
+     drop-last
+     (clojure.string/join "")
      hickory/parse-fragment
-     (mapv hickory/as-hiccup) concat (into [:div]))))
+     (mapv hickory/as-hiccup) concat (into []))))
 
 
 (defn highlight-code [form]
   (let [language (-> form (nth 2) second :class)
-        language (or language "bash" #_"javascript")
-        code (-> form (nth 2) last)]
-    (update-in form [2 2] #(highlight-parse language %))))
+        language (or language "bash")]
+    (update-in form [2] #(-> % drop-last vec (into (highlight-parse language (last %)))))))
+
+(blog.core/highlight-parse "Javascript" "  //Print solution\n  poisson.print('./field.txt', poisson.u.old);\n")
+
+#_(parse-page (first (glob/glob (str (-> "src/blog/config.edn" slurp edn/read-string :root) "/pages/webrtc-part-1.md"))))
+
+;; [:pre [:code {class=...} [...]]]
 
 (defn mathjax [form]
   (let [p? (= :p (first form))]
     ;;todo: move node path to config
-    (update-in form [2] #(:out (sh "/home/fsousa/.nvm/versions/node/v14.15.1/bin/node" "./node_modules/mathjax-node-cli/bin/tex2svg" %)))))
+    (update-in form [2]
+               (fn [f] (let [{:keys [out err]}
+                             (sh "/home/fsousa/.nvm/versions/node/v14.15.1/bin/node"
+                                 "./node_modules/mathjax-node-cli/bin/tex2svg" f)
+                             _ (when (not (empty? err)) (throw (Exception. err)))]
+                         out
+                         )))))
 
-#_(blog.core/mathjax [:p {:class "mathjax"} "t + \\frac{l}{ROS}"])
-#_(blog.core/mathjax [:span {:class "mathjax"} "t + \\frac{l}{ROS}"])
+;;(blog.core/mathjax [:span {:class "mathjax"} "t ^1 + \\frac{l}{ROS}"])
 
 (defn walk-fn [form]
   (cond (and (vector? form)
@@ -125,9 +138,15 @@
 
     [page-key page-parsed]))
 
-(comment (md/md-to-html-string-with-meta (slurp (first (glob/glob (str (-> "src/blog/config.edn" slurp edn/read-string :root) "/pages/available-styles.md")))) :inhibit-separator "%")
+(comment (md/md-to-html-string-with-meta (slurp (first (glob/glob (str (-> "src/blog/config.edn" slurp edn/read-string :root) "/pages/webrtc-part-1.md")))) :inhibit-separator "%")
 
          (parse-page (first (glob/glob (str (-> "src/blog/config.edn" slurp edn/read-string :root) "/pages/about.md")))))
+
+
+
+
+
+
 
 (defn parse-markdowns
   "Loads markdown files into an unparsed datastructure

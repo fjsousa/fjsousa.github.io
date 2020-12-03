@@ -465,3 +465,13 @@ canvas {
   right: 30px;
   width: 50px;
 }
+
+.mathjax {
+
+    svg {
+        position: relative;
+        left: 50%;
+        transform: translateX(-50%);
+    }
+
+}
