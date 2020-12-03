@@ -1,12 +1,14 @@
 Title: WebRTC Parallel Processing with a 2D partial difference equations solver (part-2)
 Subtitle: In my last post, I introduced a CFD code which solved a partial differences equation implemented in JavaScript. The starting point, was to use a parallel computational task and distribute it among several browsers with Webrtc. In this post, I'll show you how I accomplished just that.
-Tags: CFD, Web-RTC,Modelling
+Tags: CFD, Web-RTC, Modelling
 Date: 2015 3 20
 Thumb: gif.gif
 
+(Edited 3/12/2020: originally published at datajournal.co.uk. Republished in my personal blog with minor grammar fixes.)
+
 # WebRTC Parallel Processing (part-2)
 
-In my [last post](/webrtc-part-1.html), I introduced a CFD code which solved a partial differences equation implemented in JavaScript. The starting point, was to use a parallel computational task and distribute it among several browsers with Webrtc. In this post, I'll show you how I accomplished just that.
+In my [last post](/webrtc-part-1.html), I introduced a CFD code which solved a partial differences equation implemented in JavaScript. The starting point, was to use a parallel computational task and distribute it among several browsers with WebRTC. In this post, I'll show you how I accomplished just that.
 
 I've devised a solution where I have several browsers in different computers. Each browser has a peer connection and is connected to the same URL. I'm using a master/server approach, where one peer distributes work among the other peers and judges if the convergence criteria is met.
 
@@ -64,7 +66,7 @@ You should see the words 'Hello from another peer' appear on the first tab.
 ## Signalling server
  With peer.js, browsers can communicate between each other but there's no api to exchange messages between server and peers. So how does a peer know which peers are connected to the server? One way is to setup a REST end point and return a json object with the peer list.
 
-Additionally I want to create the notion of peer groups as a way to allow peers to pass messages only between members in the same group. The concept needs to be implemented if we want to run several experiments with the same signalling server.
+Additionally, I want to create the notion of peer groups as a way to allow peers to pass messages only between members in the same group. The concept needs to be implemented if we want to run several experiments with the same signalling server.
 
 The idea is to use the URL path as a prefix of the peer id. That way, it's easy to query the server for ids that start with a certain prefix. For instance, to connect the client to a group named "someexperiment" we'll do:
 
@@ -148,9 +150,9 @@ function getPrefix(id){
 }
 ```
 
-In the client code, we ensure that the peer connects with an unique id with a simple strategy. We can't just generate a random string because there's a non null probability that two peers get the same id. This will happen eventually of course even if the random string is very big.
+In the client code, we ensure that the peer connects with a unique id with a simple strategy. We can't just generate a random string because there's a non zero probability that two peers get the same id. This will happen eventually of course even if the random string is very big.
 
-We'll use browser fingerprinting to generate a string unique to the browser and then add a random string plus a timestamp. This technique still doesn't guarantee an unique id but it greatly reduces the probability of two peers connecting with the same id, because there would have to be two peer connections, comming from the same browser, in less than a microsecond, to have duplicated ids.
+We'll use browser fingerprinting to generate a string unique to the browser and then add a random string plus a timestamp. This technique still doesn't guarantee a unique id but it greatly reduces the probability of two peers connecting with the same id, because there would have to be two peer connections, coming from the same browser, in less than a microsecond, to have duplicated ids.
 
 For fingerprinting, we'll use the lib [Fingerprint2](https://github.com/Valve/fingerprintjs2) by Valentin Vasilyev.
 
@@ -244,11 +246,11 @@ You can see the whole code [here](https://github.com/fjsousa/not-so-basic-ss).
 
 Now that we have our master/server approach defined, we'll apply it to the CFD problem at hand.
 
- The way we parallelize the problem  is called Domain Paralellization. In broad strokes, this is achieved by splitting the geometry of the problem among independent processors, in this case, browser tabs. Each tab is responsible for running one instance of the poisson solver. The solver is converged until the stop criteria are met, which can be the number of iterations or the residue of the iteration being lower than a maximum value. Then, the boundaries are emitted to the neighbour tabs. For instance, the tab with section 1 will emit the east boundary to section 3, and the south boundary to section 2. The process keeps going until the global convergence is met. In our case, this happens when the global residue drops bellow a maximum allowed value.
+ The way we parallelize the problem  is called Domain Parallelization. In broad strokes, this is achieved by splitting the geometry of the problem among independent processors, in this case, browser tabs. Each tab is responsible for running one instance of the Poisson solver. The solver is converged until the stop criteria are met, which can be the number of iterations or the residue of the iteration being lower than a maximum value. Then, the boundaries are emitted to the neighbour tabs. For instance, the tab with section 1 will emit the east boundary to section 3, and the south boundary to section 2. The process keeps going until the global convergence is met. In our case, this happens when the global residue drops below a maximum allowed value.
 
 ![Domain Split](assets/img/webrtc-part-2/domain-split.png "Domain Split")
 
-I've put a [repository](https://github.com/fjsousa/poisson-rtc) on github with the code I used in this experiment. The main structure is
+I've put a [repository](https://github.com/fjsousa/poisson-rtc) on github with the code I used in this experiment. The main structure is:
 
 ```bash
   \
@@ -268,7 +270,7 @@ The client folder is the code which will run on the browsers. The client code is
 
 `master.js` has the `Master` class with methods to launch the worker peers and judge convergence.
 
-`block.js` has the `Block` class with methods to start the poisson solver and emit the boundaries to the neighbour peers. The solver has to run inside a [webworker](https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API/basic_usage) otherwise it would block the web page and crash the browser. This is the `worker.js` file.
+`block.js` has the `Block` class with methods to start the Poisson solver and emit the boundaries to the neighbour peers. The solver has to run inside a [webworker](https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API/basic_usage) otherwise it would block the web page and crash the browser. This is the `worker.js` file.
 
 `poisson.js` is the solver covered in the [previous post](/webrtc-part1.html).
 
