@@ -1,12 +1,14 @@
-Title: Como fazer um pedido de acesso a dados públicos
-Subtitle: ...
+Title: Como fazer um pedido de acesso a dados públicos[PT]
+Subtitle: Em 1993, Portugal passou em decreto Lei legislação que regula o acesso a dados públicos. No entanto, uma cultura de falta de transparência por parte da administração pública, impede os cidadãos de beneficiarem do que é efectivamente, uma das leis do género mais antigas da Europa.
 Tags: Open Data
 Date: 2017 09 23
 Skip-post-walk: true
 
+(Editado 4/12/2020: originalmente publicado em [medium](https://medium.com/@fjsousa/como-fazer-um-pedido-de-acesso-a-dados-p%C3%BAblicos-256372810005))
+
 # Como fazer um pedido de acesso a dados públicos
 
-Uma página da Wikipédia mostra uma [lista de países](https://en.m.wikipedia.org/wiki/Freedom_of_information_laws_by_country) que passaram legislação que regula o acesso dos cidadãos a dados públicos. Portugal não figura na lista. Esta falta não surpreende um vez que está de acordo com a percepção aceite do défice de transparência das instituições públicas nacionais. De fato, Portugal aparece em 29º lugar nos rankings de transparência internacionais, e [17º entre 42 países Europeus](https://tradingeconomics.com/country-list/corruption-rank?continent=europe), a cerca de metade da tabela. Aparece a seguir a países como Dinamarca, Alemanha e Reino Unido, e à frente de países como Eslováquia, Espanha e Ucrânia, para nomear alguns.
+Uma página da Wikipédia mostra uma [lista de países](https://en.m.wikipedia.org/wiki/Freedom_of_information_laws_by_country) que passaram legislação que regula o acesso dos cidadãos a dados públicos. Portugal não figura na lista. Esta falta não surpreende uma vez que está de acordo com a percepção aceite do défice de transparência das instituições públicas nacionais. De fato, Portugal aparece em 29º lugar nos rankings de transparência internacionais, e [17º entre 42 países Europeus](https://tradingeconomics.com/country-list/corruption-rank?continent=europe), a cerca de metade da tabela. Aparece a seguir a países como Dinamarca, Alemanha e o Reino Unido, e à frente de países como Eslováquia, Espanha e Ucrânia, para nomear alguns.
 
 Poucas pessoas vão ter objeções em associar adjetivos como opaco, monólito ou burocrático a uma ou mais instituições públicas nacionais. O mal estar criado pela falta de transparência existe por um motivo, pois esta fomenta corrupção, nepotismo e conflitos de interesse. O acesso por parte dos cidadãos aos dados e factos públicos é condição necessária para a transparência das instituições e ao combate aos vícios que advêm da sua ausência. Torna-se inclusive numa ferramenta para fomentar a competitividade e crescimento económico, uma vez que existe uma forte correlação entre estes e o índice de transparência de um país.
 
@@ -14,7 +16,7 @@ Da minha experiência pessoal tiro também dois episódios que ilustram esta sit
 
 No entanto, esta noção está errada e a página da Wikipédia está incompleta. Portugal devia figurar da lista. A Lei de Acesso a Documentos Administrativos (**LADA**), L[ei n.º 26/2016 de 22 de Agosto](http://www.cada.pt/uploads/589dc310-fec0-11a3.pdf), transpõe para a lei Portuguesa a Diretiva Europeia de acesso a dados governamentais ([PSI Directive](https://en.wikipedia.org/wiki/Directive_on_the_re-use_of_public_sector_information#cite_note-Infosoc2-2)). Esta lei, *“regula o acesso aos documentos administrativos e à informação administrativa”* (Artigo 1º) e *“todos, sem necessidade de enunciar qualquer interesse, têm direito de acesso(…)”* (Artigo 5º).
 
-Mais, a Lei n.º 26/2016 é a ultima versão das leis que regulam o acesso a dados públicos, sendo a primeira versão, a [Lei n.º 65/93, de 26 de Agosto](http://www.pgdlisboa.pt/leis/lei_mostra_articulado.php?nid=638&tabela=lei_velhas&nversao=1&so_miolo=). Por comparação o Reino Unido apenas terá passado o *Freedom of Information Act* no ano 2000, ou seja, 7 anos depois. A lei prevê ainda, desde 1993, a criação da [Comissão de Acesso para Documentos Administrativos, CADA,](http://www.cada.pt/) a quem se pode recorrer, em situações de pedidos não correspondidos.
+Mais, a Lei n.º 26/2016 é a última versão das leis que regulam o acesso a dados públicos, sendo a primeira versão, a [Lei n.º 65/93, de 26 de Agosto](http://www.pgdlisboa.pt/leis/lei_mostra_articulado.php?nid=638&tabela=lei_velhas&nversao=1&so_miolo=). Por comparação o Reino Unido apenas terá passado o *Freedom of Information Act* no ano 2000, ou seja, 7 anos depois. A lei prevê ainda, desde 1993, a criação da [Comissão de Acesso para Documentos Administrativos, CADA,](http://www.cada.pt/) a quem se pode recorrer, em situações de pedidos não correspondidos.
 
 Neste post, vou explicar como fazer um requerimento de acesso a dados públicos e contar a minha experiência pessoal com o Instituto da Mobilidade e dos Transportes (IMT) e com o CADA.
 
