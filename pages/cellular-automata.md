@@ -212,9 +212,9 @@ The algorithm is much more efficient because I no longer spend most of the time 
 
 The two models side by side, with the same iteration interval of 100ms. Notice that the conditions are random, so each time you refresh the page, you'll get a slightly different simulation:
 
-<div style="display:flex;justify-content:center;align-items:center;width:90%;" class="fgm-wrapper">
-  <canvas id="fgm-parallel-twin" width="250" height="250">Consider updating your browser.</canvas>
-  <canvas id="fgm-serial-twin" width="250" height="250">Consider updating your browser.</canvas>
+<div style="display:flex;justify-content:center;align-items:center;" class="fgm-wrapper">
+  <canvas id="fgm-parallel-twin" width="250" height="250" style="margin-bottom: 0;!important">Consider updating your browser.</canvas>
+  <canvas id="fgm-serial-twin" width="250" height="250" >Consider updating your browser.</canvas>
 </div>
 <button onclick="smart2.run();dumb2.run();" class="actionbutton" style="position: relative; left: 50%; transform: translateX(-50%);">►</button>
 
