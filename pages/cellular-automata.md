@@ -4,20 +4,21 @@ Tags: Engineering, Software
 Date: 2015 6 21
 Thumb: slug.png
 
+(Edited 3/12/2020: originally published at datajournal.co.uk. Republished in my personal blog with minor grammar fixes.)
+
 # Forest Fires and Parallel Cellular Automata, going from 8x to 240x faster with GPUs
 
 Forest fire numerical models use Cellular Automata (CA) to simulate fire propagation. A grid or mesh of the terrain is provided, along with maps for parameters like fuel properties, wind speed, humidity and others. The CA is basically a way to propagate an ignition state, based on minimum travel times, between adjacent cells.
 
-Other methods exist, like vector based methods, that compute the position of the fire front in consecutive time steps, or partial differences equation (PDE), that allow for a two way coupling of the fire model and the weather models.
+Other methods exist, like vector based methods, that compute the position of the fire front in consecutive time steps, or partial differences equation (PDE), that allow for a two-way coupling of the fire model and the weather models.
 
-Although the last type is much more accurate, the first two are the *de facto* tools for fire modeling due to the compromise between computing speed and accuracy.
+Although the last type is much more accurate, the first two are the *de facto* tools for fire modelling due to the compromise between computing speed and accuracy.
 
 In this blog post, I'll show you two versions of a CA model, a trivial and a parallel version I developed during my Masters. Both versions were ported to [Nvidia GPUs](https://en.wikipedia.org/wiki/CUDA) with the aim of speeding up the existing single core implementation.
 
-Initially, a direct, naive port was attempted which wasn't very performant. This lead me to reformulate the algorithm so that it was fully parallel and therefore, more suitable to the many-core architecture of the GPU.
+Initially, a direct, naive port was attempted which wasn't very performant. This led me to reformulate the algorithm so that it was fully parallel and therefore, more suitable to the many-core architecture of the GPU.
 
-Performance increase was only achieved with a rethinking of the algorithm, not by tweaking and fine tunning the GPU parameters of a flawed approach.
-
+Performance increase was only achieved with a rethinking of the algorithm, not by tweaking and fine tuning the GPU parameters of a flawed approach.
 
 ## Naive algorithm
 
@@ -31,14 +32,19 @@ The existing algorithm was the following:
 
 - The ignition time of each neighbour is computed with the formula below. The ignition map is then updated:
 
-<div class="equation"> $$ t + \frac{l}{ROS}$$ </div>
+<p class="mathjax"> %t + \frac{l}{ROS}% </p>
 
 where *ROS* is the **R**ate **O**f **S**pread, basically the flame speed in the neighbour direction, function of wind, moisture, terrain, etc; *l* is the distance between cells and *t* is the time in the central cell.
 
-<div class="fgm-wrapper">
+
+
+<div class="fgm-wrapper" style="display: flex; justify-content: center;">
   <canvas id="fgm-serial" width="400" height="400">Consider updating your browser.</canvas>
 </div>
-<button onclick="dumb.run()" class="actionbutton">►</button>
+<br>
+<button onclick="dumb.run()" class="actionbutton" style="position: relative; left: 50%; transform: translateX(-50%);">►</button>
+
+
 
 If you press **Run**, you'll see an animation of the fire propagation with the naive version of the CA. Notice that each square represents a portion of the terrain and the colour is just a linear scale that maps to ignition time. The scale goes from blue, to red, white is the starting point and black means the cell is unburned.
 
@@ -128,8 +134,7 @@ The algorithm we've seen mimics the way fire propagates in real life, propagatin
 Ignition times in surrounding cells are calculated, as we have seen, like this:
 
 
-```Javascript
-
+```javascript
   igntime = t + ndist[n] / ROS;
 
   if(igntime < ignitionMap[nidx]){
@@ -140,7 +145,7 @@ Ignition times in surrounding cells are calculated, as we have seen, like this:
 
 During the process, the ignition time in each cell is continuously updated, so that if two cells propagate to the same cell, the minimum time of the two is considered and stored as the true ignition time.
 
-Looking at the problem in another way, what we have is a condition that can be stated as follows: the ignition time of each cell, is always the minimum of the set of ignition times accounted from the 8 surrounding cells.
+Looking at the problem in another way, what we have is a condition that can be stated as follows: **the ignition time of each cell, is always the minimum of the set of ignition times accounted from the 8 surrounding cells**.
 
 From this, instead of computing outward ignition times at each neighbour, I compute the ignition time at the inner cell.
 
@@ -150,10 +155,12 @@ But now the question is, how can I compute ignition times from cells that haven'
 
 The solution is to do it iteratively, ie, to start from a random ignition map and compute each new map function of the previous one, until there is virtually no difference between any two consecutive ignition maps.
 
-<div class="fgm-wrapper">
-  <canvas id="fgm-parallel" width="400" height="400">Consider updating your browser.</canvas>
+
+<div class="fgm-wrapper" style="display: flex; justify-content: center;">
+  <canvas id="fgm-parallel" width="400" height="400" >Consider updating your browser.</canvas>
 </div>
-<button onclick="smart.run()" class="actionbutton">►</button>
+<br>
+<button onclick="smart.run()" class="actionbutton" style="position: relative; left: 50%; transform: translateX(-50%);">►</button>
 
 This is how the spatial loop looks like:
 
@@ -209,7 +216,7 @@ The two models side by side, with the same iteration interval of 100ms. Notice t
   <canvas id="fgm-parallel-twin" width="250" height="250">Consider updating your browser.</canvas>
   <canvas id="fgm-serial-twin" width="250" height="250">Consider updating your browser.</canvas>
 </div>
-<button onclick="smart2.run();dumb2.run();" class="actionbutton">►</button>
+<button onclick="smart2.run();dumb2.run();" class="actionbutton" style="position: relative; left: 50%; transform: translateX(-50%);">►</button>
 
 
 And that's it. If you want to know more just follow the link and read the <a href="assets/docs/sousa-etall.pdf" target="_blank">white paper</a>.
