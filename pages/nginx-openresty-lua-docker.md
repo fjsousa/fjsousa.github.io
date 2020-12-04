@@ -1,9 +1,11 @@
 Title: A development environment for a tricked out Nginx
 Date: 2017 08 07
 Tags: nginx,docker,lua,openresty
-Subtitle: OpenResty lets you extend Nginx with Lua, a popular, embedded language. Setting up the development environment is time consuming when Openresty is compiled locally, making collaboration harder. This blog post will show you a Docker based tool to start hacking with server side Lua.
+Subtitle: OpenResty lets you extend Nginx with Lua, a popular, embedded language. Setting up the development environment is time-consuming when Openresty is compiled locally, making collaboration harder. This blog post will show you a Docker based tool to start hacking with server side Lua.
 Thumb: barrier-page-flow.jpg
 Thumb-alt: "Smart Proxy Http Diagram"
+
+(Edited 3/12/2020: originally published at datajournal.co.uk.)
 
 # A development environment for a tricked out Nginx
 
@@ -16,9 +18,9 @@ Thumb-alt: "Smart Proxy Http Diagram"
 - `$ docker run -p 80:80 nginx-barrier-page:latest`
 - Hit `localhost` in your browser.
 
-At Style.com, prior to our Setember 2016 launch, we published a Beta version of our website in May. We wanted to have a barrier page on the `style.com` domain, that would require an invitation token. If valid it would set a cookie with a token, that would be used in every following request to bypass the barrier page. The tokens could be invalidated and would expire after a certain time.
+At Style.com, prior to our September 2016 launch, we published a Beta version of our website in May. We wanted to have a barrier page on the `style.com` domain, that would require an invitation token. If valid it would set a cookie with a token, that would be used in every following request to bypass the barrier page. The tokens could be invalidated and would expire after a certain time.
 
-The business rules required a solution more sophisticated than what Nginx provided out of the box and this was the perfect oportunity to roll out Openresty with some Lua logic. OpenResty is an extended version of Nginx with a module that lets you embed Lua scripts. We had read of Lua + Openresty [performance at Github](https://githubengineering.com/rearchitecting-github-pages/) and witnessed the small overhead [Kong](https://getkong.org/) added to our requests. Also, Nginx was already part of our stack, acting as a reverse proxy and doing https offloading.
+The business rules required a solution more sophisticated than what Nginx provided out of the box and this was the perfect opportunity to roll out Openresty with some Lua logic. OpenResty is an extended version of Nginx with a module that lets you embed Lua scripts. We had read of Lua + Openresty [performance at Github](https://githubengineering.com/rearchitecting-github-pages/) and witnessed the small overhead [Kong](https://getkong.org/) added to our requests. Also, Nginx was already part of our stack, acting as a reverse proxy and doing https offloading.
 
 ## 1 Basic OpenResty Setup
 
@@ -38,9 +40,9 @@ server {
 }
 ```
 
-This configuration would listen in port `80` and proxy `some.website.com` according to some custom logic in `main.lua`. This extra directive is the basic additional sintax you need to add to your existing Nginx server configuration. If your OpenResty is installed locally, you can start adding your Lua logic and you'll just have to restart Nginx to pick up the changes.
+This configuration would listen in port `80` and proxy `some.website.com` according to some custom logic in `main.lua`. This extra directive is the basic additional syntax you need to add to your existing Nginx server configuration. If your OpenResty is installed locally, you can start adding your Lua logic and you'll just have to restart Nginx to pick up the changes.
 
-The setup works fine until you realize you have to go through the same process in someone Elise's machine. After spending more time than you'd like to admite trying to get OpenResty compilation flags right, containerization starts to seem like something that would solve a lot of the development problems, instead of being just an extra step for deployment.
+The setup works fine until you realize you have to go through the same process in someone Elise's machine. After spending more time than you'd like to admit trying to get OpenResty compilation flags right, containerization starts to seem like something that would solve a lot of the development problems, instead of being just an extra step for deployment.
 
 ## 2 Dockerfile
 
@@ -123,11 +125,11 @@ The whole process should be quite fast. Building the image, carrying over the so
 
 As an example, imagine you have a website that you want to protect with a password screen. Lets use `http://www.theuselessweb.com/` as our target website because I've been procrastinating while writing this post. However, you want something custom, other than the basic authentication that Nginx can provide.
 
-We want the user to see a barrier form prompting an authentication token. When the user sends the token, we want to validate it against a list of valid tokens. If the authentication token is valid, we'll store a domain cookie with a token, so that next time, the cookie in the headers is validated instead and the user proceeds to `http://www.theuselessweb.com/`. If the authentication token is found to be invalid the server replies 401. This example is a simplified version of the proxy server that went live with Style.com's Beta launch, and that served as inspiration for this blog post.
+We want the user to see a barrier form prompting an authentication token. When the user sends the token, we want to validate it against a list of valid tokens. If the authentication token is valid, we'll store a domain cookie with a token, so that next time, the cookie in the headers is validated instead and the user proceeds to `http://www.theuselessweb.com/`. If the authentication token is found to be invalid, the server replies 401. This example is a simplified version of the proxy server that went live with Style.com's Beta launch, and that served as inspiration for this blog post.
 
 ![Barrier Page http flow](assets/img/nginx-openresty-lua-docker/barrier-page-flow.jpg "Barrier Page http flow")
 
-Our proxy server will have the proxying logic at `/`. The location block `location /` in the Nginx configuration file bellow, means that every request that starts with `/` will go trough the `access_by_lua lualib/main.lua` directive. The cookie validation logic will live in this file. `/auth` is the endpoint which will handle the token authentication posted by the authentication form of the barrier page. `/form` is serving the html form and assets of the barrier page.
+Our proxy server will have the proxying logic at `/`. The location block `location /` in the Nginx configuration file below, means that every request that starts with `/` will go trough the `access_by_lua lualib/main.lua` directive. The cookie validation logic will live in this file. `/auth` is the endpoint which will handle the token authentication posted by the authentication form of the barrier page. `/form` is serving the html form and assets of the barrier page.
 
 ```
 # server.conf
