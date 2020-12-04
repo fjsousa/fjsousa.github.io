@@ -10,7 +10,7 @@ Skip-post-walk: true
 
 I've been wanting to write about my experience with remote work and how simple mindfulness techniques had a huge impact on my work quality. Now with Covid-19 sending a lot of people around me into forced remote work and with bad news pouring through every device with a screen around us, I felt the urgency to write it more than ever.
 
-Based on my meditation practice following a 10 day retreat in 2018 and after almost a year of being full time remote, I found myself sharing the same unsolicited advice with a few friends struggling with focus. I'm now putting that in writing so, if this is your first time remote working or if you're struggling with focus, this is a shortlist of things that might help.
+Based on my meditation practice following a 10-day retreat in 2018 and after almost a year of being full time remote, I found myself sharing the same unsolicited advice with a few friends struggling with focus. I'm now putting that in writing so, if this is your first time remote working or if you're struggling with focus, this is a shortlist of things that might help.
 
 ## 1 - Desk setup for the space deprived
 
@@ -18,14 +18,14 @@ If you are renting like me then you probably don't have an extra room and space 
 
 ![A minimalist affordable remote desk setup.](assets/img/remote-work/desk_s.jpg "A minimalist affordable remote desk setup, complete with a cat holder.")
 
-Only a few days of working from my cheap IKEA dining room chair made me realise how much I was undervaluing the comfort of a modern office chair. A good comfortable chair for you to sit on the whole day is not going to be cheap, so, instead of spending money on an additional piece of furniture, consider a basic standup fixed desk if you can work standing up. The one in the picture cost me around 100£ online. If you think you're going to get tired, you could always go for a tall chair to alternate. The one in the picture costs around 30£. It's not comfortable to spend a full day on it, but it encourages me to alternate between quick sitting down periods and standing up.
+Only a few days of working from my cheap IKEA dining room chair made me realize how much I was undervaluing the comfort of a modern office chair. A good comfortable chair for you to sit on the whole day is not going to be cheap, so, instead of spending money on an additional piece of furniture, consider a basic standup fixed desk if you can work standing up. The one in the picture cost me around 100£ online. If you think you're going to get tired, you could always go for a tall chair to alternate. The one in the picture costs around 30£. It's not comfortable to spend a full day on it, but it encourages me to alternate between quick sitting down periods and standing up.
 
 The keyboard and mouse are accessories and I wouldn't recommend buying them at first, unless you've got some requirement for special equipment. The second monitor I do recommend and at this point I couldn't live without it. If you don't need one you can even go for simpler, cheaper options.
 
 
 ## 2 - Daily schedule and work boundaries
 
-In normal times, the immediate, most measurable benefit you get from remote work is probably the time you save commuting. Being pushed into a crowded underground train, trying to find space to read a book stops being funny very quickly. However, you more than likely have gotten used to the routine, and suddenly without this daily ritual, you'll find yourself not having a clear separation between work and personal life. This can be disastrous in the long run if you can't find the right headspace as you find all sorts of personal issues competing with work for your attention.
+In normal times, the immediate, most measurable benefit you get from remote work is probably the time you save commuting. Being pushed into a crowded underground train, trying to find space to read a book stops being funny very quickly. However, you more than likely have got used to the routine, and suddenly without this daily ritual, you'll find yourself not having a clear separation between work and personal life. This can be disastrous in the long run if you can't find the right headspace as you find all sorts of personal issues competing with work for your attention.
 
 ![It's important to have a routine.](assets/img/remote-work/routine.jpg "It's important to have a routine.")
 
@@ -35,15 +35,15 @@ This one sounds like a platitude but I cannot stress how much it improved my lif
 
 ### Managing focus
 
-One of the main complaints about offices is how the place is designed to make you available to interruption. In my opinion, working with a mobile phone next to you buzzing with personal messages accounts to exactly the same thing. I find that working next to a phone nibbling away at my focus is usually a bad idea. The litmus test of the quality of one's focus is of course to remain undisturbed with a device flashing and buzzing next to you, but given the circumstances, and if you like to keep an eye on the news, I would say that that's generally a bad idea now.
+One of the main complaints about offices is how the place is designed to make you available to interruption. In my opinion, working with a mobile phone next to you buzzing with personal messages accounts to exactly the same thing. I find that working next to a phone nibbling away at my focus is usually a bad idea. The litmus test of the quality of one's focus is of course to remain undisturbed with a device flashing and buzzing next to you, but given the circumstances, and if you like to keep an eye on the news, I would say that's generally a bad idea now.
 
-Working with music is a common strategy to get into a flow state. For me it comes with a cost, as for anything non trivial it gets in the way of loading all the information I need to solve a problem. Instead, I do the trial and true pomodoro technique, where you use a timer, to set the on and off work periods, usually 25 minutes on, 5 minutes off.
+Working with music is a common strategy to get into a flow state. For me it comes with a cost, as for anything nontrivial it gets in the way of loading all the information I need to solve a problem. Instead, I do the trial and true pomodoro technique, where you use a timer, to set the on and off work periods, usually 25 minutes on, 5 minutes off.
 
-- During the "on" stage, the goal is to recognise distractions, to catch yourself reaching for the mobile or opening social media and to keep bringing attention back to the task at hand. Giving into these distractions only reinforces them. Focus really works like a muscle, and the more you keep pulling attention back, the easier it gets in the long run. Eventually it becomes easy to slip into a state of flow and I find the quality of my focus is much better, in the way that I can pay attention more easily to what's in the periphery of the problem I'm trying to solve.
+- During the "on" stage, the goal is to recognize distractions, to catch yourself reaching for the mobile or opening social media and to keep bringing attention back to the task at hand. Giving into these distractions only reinforces them. Focus really works like a muscle, and the more you keep pulling attention back, the easier it gets in the long run. Eventually it becomes easy to slip into a state of flow and I find the quality of my focus is much better, in the way that I can pay attention more easily to what's in the periphery of the problem I'm trying to solve.
 
 - On the "off" stage, I use this time to go to the bathroom, drink water or eat something. Even if I'm feeling good about my progress and don't feel like resting, I'll take the time. Five minutes is not enough to forget the context and I find that frequently, it's during these moments that I reflect critically about the approach that I was taking, which is difficult to do when fully engaged with a given task.
 
-There is a common misunderstanding about this technique and the fact that 25 minutes is a small period of time to get into the context. Ideally in the off stage, you're not actually leaving the context by checking social media, or generally slacking off, you're simply allowing yourself a break from the actual "doing" and taking a step back. When you get up to fetch a glass of water, you're still thinking about the problem, and it's usually during these periods that some creative solution comes to mind. In the end I find that it's about energy management and that I can go for much longer than sitting for long periods at the time.
+There is a common misunderstanding about this technique and the fact that 25 minutes is a small period of time to get into the context. Ideally in the off-stage, you're not actually leaving the context by checking social media, or generally slacking off, you're simply allowing yourself a break from the actual "doing" and taking a step back. When you get up to fetch a glass of water, you're still thinking about the problem, and it's usually during these periods that some creative solution comes to mind. In the end I find that it's about energy management and that I can go for much longer than sitting for long periods at the time.
 
 ## 3 - Communicate early and often
 
@@ -63,7 +63,7 @@ Adaptation takes time and you'll find yourself failing at getting focused. As lo
 
 Discipline really is your friend in a time like this. You might not be able to stop bad news, but you'll always be able to choose what to focus on.
 
-Those that meditate recognise this as basic mindfulness training. For those that don't I suggest now would be a good time to start. I've got experience with Headspace and Waking Up app and I recommend both. I've done a full 10 day silent retreat in 2018 and have been meditating regularly every day since. These days I do a mixture of the techniques I learned and the Waking up app. I find these to be fundamental tools to handle my daily life, especially in a time of crises.
+Those that meditate recognize this as basic mindfulness training. For those that don't I suggest now would be a good time to start. I've got experience with Headspace and Waking Up app and I recommend both. I've done a full 10-day silent retreat in 2018 and have been meditating regularly every day since. These days I do a mixture of the techniques I learned and the Waking up app. I find these to be fundamental tools to handle my daily life, especially in a time of crises.
 
 ## Postscript
 
