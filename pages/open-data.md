@@ -4,13 +4,14 @@ Tags: Open Data,Journalism,Government Data
 Date: 2016 10 10
 Skip-post-walk: true
 
+(Edited 3/12/2020: originally published at datajournal.co.uk.)
 # Melhor da Zona or: How I Learned to Stop Worrying and Love Data Transparency
 
 The project ["Melhor da Zona"](http://www.melhordazona.com) (which roughly translates to  "Best in the Area") was presented at [Pixels.camp](https://pixels.camp) with a talk entitled *Melhor Da Zona or: How I Learned to Stop Worrying and Love Data Transparency*. This is the description of the talk that was submitted:
 
 This talk is about how a culture of data sharing and transparency in government institutions, fosters important and unexpected changes to society. To illustrate this point, I'm going to talk about **Melhor da Zona**, a web app that lets you search the best driving schools in your area.
 
-The idea was born out of the realization that the only metric available for comparing driving schools, was the school's "license" price. This creates an unfortunate situation where schools are forced to compete for low prices and compromise on quality. Also, schools lose all incentives to provide a better service because the teaching quality, ie pass rates, are never publicly known. If this information was published, then students would be able to compare price against quality and make a better informed decision.
+The idea was born out of the realization that the only metric available for comparing driving schools, was the school's "licence" price. This creates an unfortunate situation where schools are forced to compete for low prices and compromise on quality. Also, schools lose all incentives to provide a better service because the teaching quality, i.e. pass rates, are never publicly known. If this information was published, then students would be able to compare price against quality and make a better informed decision.
 
 In the beginning of 2015, the Institute for Transport and Mobility (IMT) published the pass rates of driving schools, with a break down for theoretical exams and practical exams for the different driving classes.
 
