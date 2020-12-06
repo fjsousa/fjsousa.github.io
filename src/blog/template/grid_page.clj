@@ -6,13 +6,13 @@
 (def config (-> "src/blog/config.edn" slurp clojure.tools.reader.edn/read-string))
 
 (defn article
-  [res [page-key {{:keys [title date tags subtitle thumb thumb-alt slug link-rewrite grid-media-item grid-img link-copy] :as metadata} :metadata content :content}]]
+  [res [page-key {{:keys [video-arrow title date tags subtitle thumb thumb-alt slug link-rewrite grid-media-item grid-img link-copy] :as metadata} :metadata content :content}]]
   (if ((:skip config) page-key)
     res
     (into res
           [[:article {:class "masonry-item article-item open-lightbox", :data-lightbox (str (+ 1 (/ (count res) 2)))}
             (when thumb
-              [:figure
+              [:figure (when video-arrow {:class "grid-video"})
                [:img {:src (format "assets/img/%s/%s" (name page-key) thumb), :alt thumb-alt}]])
             [:div {:class "excerpt"}
              [:p title

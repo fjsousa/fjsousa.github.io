@@ -81,11 +81,7 @@
         language (or language "bash")]
     (update-in form [2] #(-> % drop-last vec (into (highlight-parse language (last %)))))))
 
-(blog.core/highlight-parse "Javascript" "  //Print solution\n  poisson.print('./field.txt', poisson.u.old);\n")
-
-#_(parse-page (first (glob/glob (str (-> "src/blog/config.edn" slurp edn/read-string :root) "/pages/webrtc-part-1.md"))))
-
-;; [:pre [:code {class=...} [...]]]
+#_(blog.core/highlight-parse "Javascript" "  //Print solution\n  poisson.print('./field.txt', poisson.u.old);\n")
 
 (defn mathjax [form]
   (let [p? (= :p (first form))]
@@ -132,11 +128,14 @@
                         (update-in [:metadata :grid-img] first)
                         (update-in [:metadata :link-rewrite] identity)
                         (update-in [:metadata :link-copy] #(when % (first %)))
+                        (update-in [:metadata :video-arrow] #(when % (first %)))
                         (update-in [:metadata :grid-media-item] #(when % (-> % first hickory/parse-fragment first hickory/as-hiccup)))
                         (update-in [:content] (fn [[div & rest-el]]
                                                 rest-el)))]
 
     [page-key page-parsed]))
+
+#_(parse-page (first (glob/glob (str (-> "src/blog/config.edn" slurp edn/read-string :root) "/pages/pixelscamp-melhordazona.md"))))
 
 (comment (md/md-to-html-string-with-meta (slurp (first (glob/glob (str (-> "src/blog/config.edn" slurp edn/read-string :root) "/pages/webrtc-part-1.md")))) :inhibit-separator "%")
 
