@@ -4,7 +4,7 @@ Subtitle: flaviosousa.co, software engineer
 Skip-post-walk: true
 Tags: about
 
-I'm a software engineer currently working as an independent contractor. I work mainly with javascript and clojure. I work best in small teams where devs have full ownership of the features produced.
+I'm a software engineer currently working as an independent contractor. I work mainly with javascript and clojure.
 
 After a university degree in mechanical engineering with a strong focus on energy and fluid computational analysis, I worked at a uni lab doing fluid flow analysis for external clients for a couple of years.
 
@@ -29,42 +29,39 @@ What I've been up to these past years:
 
 ## Highlighted projects
 
-- GPU based forest fire simulation and algorithm optimization - 2010. Still [available on github](https://github.com/fjsousa/cudaFGM)
-- [Open driving license pass rates](https://www.youtube.com/watch?v=fZm0paShVMw&feature=youtu.be) - 2016
-- At youview, I've charged the early refactoring efforts of a set of microservices, consolidating them into more maintainable smaller services and reducing the aws budget significantly. - 2019
-- Game development prototyping in C++ and Construct for what would latter become a children's educational game: Zuper in Space - 2010
+- GPU based forest fire simulation and algorithm optimization, 2010. Still [available on github](https://github.com/fjsousa/cudaFGM)
+- Game development prototyping in C++ and Construct for what would latter become a children's educational game: Zuper in Space, 2010
+- [Open driving license pass rates](https://www.youtube.com/watch?v=fZm0paShVMw&feature=youtu.be), 2016
+- At youview (2019), I've charged the early refactoring efforts of a set of microservices, consolidating them into more maintainable smaller services and reducing the aws budget significantly
+
 
 ## White papers
 
-- Simulation of surface fire fronts using firelib and GPUs, 2011. [Link](https://www.sciencedirect.com/science/article/pii/S1364815212001867)
-- Faster than real time stochastic fire spread simulations, 2011. [Link](http://www.techscience.com/cmes/2012/v89n5_index.html)
-- Numerical Investigations on the Inter-Career-Gap Flow for a Generic High Speed Train, 2011. [Link](http://www.ctresources.info/ccp/paper.html?id=6799)
+- [Simulation of surface fire fronts using firelib and GPUs](https://www.sciencedirect.com/science/article/pii/S1364815212001867), 2011
+- [Faster than real time stochastic fire spread simulations](http://www.techscience.com/cmes/2012/v89n5_index.html), 2011
+- [Numerical Investigations on the Inter-Career-Gap Flow for a Generic High Speed Train](http://www.ctresources.info/ccp/paper.html?id=6799), 2011
 
 ## Organizations I belonged to
 
 - Lasef - [Fluid and Energy simulation lab](https://www.youtube.com/channel/UCWRrDVkYMj4LvLETyXrLg-g) (January 2010 - November 2012)
-- Great Debators Club, London - 2020
+- Great Debators Club, London 2020
 
 ## Companies I've worked for
 
-- Crowdprocess, Lisbon 2013 (Pivoted)
-- Muzzley, Lisbon 2014 (Pivoted)
-- Style.com, London 2015 (Bought by Conde Naste)
+- Crowdprocess, Lisbon 2013 (no longer active)
+- Muzzley, Lisbon 2014 (no longer active)
+- Style.com, London 2015 (no longer active)
 - Funding Circle, London 2017
 - Youview, London 2018
 
 ## Awards
 
-- 2nd place in the Msc. Category of the Fraunhofer Challenge. The contest is an academic competition
-that awards research with practical utility. ​ My project​ was a mobile app that enabled fire-fighters to turn
-smartphones into fire simulators, by feeding data to models running in remote servers. 2011
-- ISCTE-IUL MIT Venture Competition – Semi-finalist. Contributed with fluid flow analysis of a
-high-altitude, floating wind turbine. The project was one of the 20 semi finalists in a startup pitch competition
-for a prize up to 1 million Euros. 2011
+- 2nd place in the Msc. Category of the Fraunhofer Challenge with a fire simulation app, 2011. The contest is an academic competition that awards research with practical utility
+- ISCTE-IUL MIT Venture Competition – Semi-finalist, 2011. Contributed with fluid flow analysis of a high-altitude, floating wind turbine
 
 ## Conferences
 
-- Hack for Good, Lisbon 2014 (co-organised)
+- Hack for Good, Lisbon 2014 (co-organiser)
 - Geo Camp, 2014 Caldas da Rainha (Speaker)
 - Pixels Camp, Lisbon 2016 (Speaker)
 
@@ -100,10 +97,11 @@ Books:
 Songs:
 
 - Echoes, Pink Floyd
--
+- Schism, Tool
 -
 
 Films:
--
--
--
+
+- The Matrix, The Wachowskis
+- Memento, Christopher Nolan
+- Fight Club, David Fincher
