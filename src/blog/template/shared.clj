@@ -29,7 +29,7 @@
         [:div {:class "about"}
          [:p
           [:i "Personal website."
-           [:br]"Past projects, bit of blogging."]]]]
+           [:br]"Past projects, blogging."]]]]
        [:div {:class "col-12 col-sm-4"}
         [:div {:class "social-links"}
          [:a {:href (:medium social), :target "_blank"}
