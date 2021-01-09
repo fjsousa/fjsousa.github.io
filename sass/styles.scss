@@ -194,18 +194,31 @@ header {
   }
 
   .social-links {
+    align-items: center;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
     margin: 0 -5px;
     text-align: right;
 
     @media (max-width: $m-min) {
-      margin-top: 50px;
+      margin-top: 20px;
       text-align: left;
+      justify-content: flex-start;
+    }
+
+    div {
+      margin-right: 20px;
+
+      @media (max-width: $m-min) {
+        width: 100%;
+        margin-bottom: 15px;
+      }
     }
 
     a {
       display: inline-block;
       margin: 0 5px;
-      text-decoration: none;
 
       img {
         height: 20px;

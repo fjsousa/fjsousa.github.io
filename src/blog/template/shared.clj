@@ -32,6 +32,7 @@
            [:br]"Past projects, blogging."]]]]
        [:div {:class "col-12 col-sm-4"}
         [:div {:class "social-links"}
+         [:div [:a {:href "/about.html"} [:strong "About me"]]]
          [:a {:href (:medium social), :target "_blank"}
           [:img {:src "assets/img/icon-medium.svg"}]]
          [:a {:href (:linkedin social), :target "_blank"}

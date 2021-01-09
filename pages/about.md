@@ -6,14 +6,14 @@ Tags: about
 
 I'm a software engineer currently working as an independent contractor. I work mainly with javascript and clojure.
 
-After a university degree in mechanical engineering with a strong focus on energy and fluid computational analysis, I worked at a uni lab doing fluid flow analysis for external clients for a couple of years.
+After a university degree in mechanical engineering with a strong focus in energy and fluid computational analysis, I worked at a university lab doing fluid flow analysis for external clients for a couple of years.
 
-Around 2013 I left the lab  and eventually worked for a couple of startups in the booming Lisbon startup scene.
+Around 2013 I left the lab and eventually worked for a couple of startups in the booming Lisbon startup scene.
 
 In 2015, I moved to London and worked for E-commerce, entertainment and financial services, leaving in 2020 after getting a remote job.
 
 
-In 2016, I created a project using open driving licence pass rates, that contributed to better transparency in an otherwise opaque sector of the Portuguese economy.
+In 2016, I created a personal project using open driving licence pass rates, that contributed to better transparency in an otherwise opaque sector of the Portuguese economy.
 
 Currently I'm focused primarily in distributed systems and numerical problems.
 
@@ -32,7 +32,7 @@ What I've been up to these past years:
 - GPU based forest fire simulation and algorithm optimization, 2010. Still [available on github](https://github.com/fjsousa/cudaFGM)
 - Game development prototyping in C++ and Construct for what would latter become a children's educational game: Zuper in Space, 2010
 - [Open driving license pass rates](https://www.youtube.com/watch?v=fZm0paShVMw&feature=youtu.be), 2016
-- At youview (2019), I've charged the early refactoring efforts of a set of microservices, consolidating them into more maintainable smaller services and reducing the aws budget significantly
+- At youview (2019), I've charged the early consolidation efforts of a set of microservices, into more maintainable smaller services with considerable AWS budget savings
 
 
 ## White papers
@@ -70,6 +70,7 @@ What I've been up to these past years:
 - [Think Again: How to Reason and Argue](https://www.coursera.org/account/accomplishments/verify/BEX98SSBV3) (Coursera, 2016)
 - [Algorithms, part 1](https://www.coursera.org/learn/algorithms-part1) (Coursera, 2017)
 - Vipassana 10 day meditation retreat (Chennai India, 2018)
+- [Deep Learning Specialization](https://www.coursera.org/specializations/deep-learning) (currently attending)
 
 ## Other
 
@@ -82,9 +83,9 @@ What I've been up to these past years:
 ### Brazilian Jiu Jitsu
 
 - Blue Belt in Brazilian Jiu-Jitsu, 2013
-- Southeast Open, Jan 2018 - learned
+- Southeast Open, Jan 2018
 - Brighton BJJ 24-7 Winter Open 2018: 2nd place
-- Grappling Industries LONDON: March 14, 2020 - learned
+- Grappling Industries LONDON: March 14, 2020
 
 ###  3 books, 3 songs, 3 films
 
@@ -92,13 +93,13 @@ Books:
 
 - Godel Escher Bach, Douglas Hofstadter
 - Shadows of Forgotten Ancestors, Carl Sagan
-- 1984, Orwell
+- 1984, George Orwell
 
 Songs:
 
 - Echoes, Pink Floyd
 - Schism, Tool
-- ...
+- 50 Million Year Trip, Kyuss
 
 Films:
 
