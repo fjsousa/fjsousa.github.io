@@ -15,8 +15,7 @@
               [:figure (when video-arrow {:class "grid-video"})
                [:img {:src (format "assets/img/%s/%s" (name page-key) thumb), :alt thumb-alt}]])
             [:div {:class "excerpt"}
-             [:p title
-              #_#_[:br][:span {:style "color: gray; font-size: 0.8rem"} (f/unparse  (f/formatter "yyyy-MM-dd") date)]]]]
+             [:p title]]]
 
            [:div {:class "lightbox", :data-lightbox (str (+ 1 (/ (count res) 2)))}
             [:div {:class "inner"}
@@ -25,6 +24,7 @@
               [:div {:class "row"}
                [:div {:class "col-12"}
                 [:article {:class "article-body"}
+                 [:div {:class "date"} (f/unparse  (f/formatter "d MMMM, yyyy") date)]
                  [:h2 {:class "h1"}
                   [:strong title]]
                  (when grid-img
