@@ -50,7 +50,7 @@ What I've been up to these past years:
 
 - Crowdprocess, Lisbon 2013 (no longer active)
 - Muzzley, Lisbon 2014 (no longer active)
-- Style.com, London 2015 (no longer active)
+- Style.com, London 2015 (Part of Farfetch now)
 - Funding Circle, London 2017 (IPO 2018)
 - Youview, London 2018
 
