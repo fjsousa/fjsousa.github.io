@@ -51,6 +51,17 @@
                    #_reverse
                    (reduce article []))
         content [:div {:class "col-12"}
+                 #_[:div {:class "articles-actions"}
+                  [:div {:class "tags"}
+                   [:span "Tags:"]
+                   [:a {:href "#"} "All"]
+                   [:a {:href "#"} "Personal"]
+                   [:a {:href "#"} "Software"]
+                   [:a {:href "#"} "Experiments"]]
+                  [:div {:class "view"}
+                   [:span "View:"]
+                   [:a {:href "#", :class "list"} "List"]
+                   [:a {:href "#", :class "grid"} "Grid"]]]
                  (into
                   [:div {:class "masonry-grid articles-grid"}] pages )]]
    (shared/main {:title (:head-title config) :subtitle (:meta-description config)} content)))

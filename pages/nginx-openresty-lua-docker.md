@@ -5,8 +5,6 @@ Subtitle: OpenResty lets you extend Nginx with Lua, a popular, embedded language
 Thumb: thumb.jpg
 Thumb-alt: "Smart Proxy Http Diagram"
 
-(Edited 3/12/2020: originally published at datajournal.co.uk.)
-
 # A development environment for a tricked out Nginx
 
 
@@ -228,3 +226,6 @@ Further Reading
 - [Blog Post about OpenResty + Lua.](http://www.staticshin.com/top-tens/things-about-openresty.html)
 - [Nice slide deck from London's Lua user group.](http://www.londonlua.org/scripting_nginx_with_lua/slides.html)
 - [Oficial Docs.](https://openresty.org/en/lua-nginx-module.html)
+
+
+(Edited 3/12/2020: originally published at datajournal.co.uk.)

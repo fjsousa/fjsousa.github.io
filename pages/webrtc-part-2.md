@@ -4,8 +4,6 @@ Tags: CFD, Web-RTC, Modelling
 Date: 2015 3 20
 Thumb: gif.gif
 
-(Edited 3/12/2020: originally published at datajournal.co.uk. Republished in my personal blog with minor grammar fixes.)
-
 # WebRTC Parallel Processing (part-2)
 
 In my [last post](/webrtc-part-1.html), I introduced a CFD code which solved a partial differences equation implemented in JavaScript. The starting point, was to use a parallel computational task and distribute it among several browsers with WebRTC. In this post, I'll show you how I accomplished just that.
@@ -326,3 +324,5 @@ When the process finishes, you'll get a download link for each block. In this ca
 ![gif time](assets/img/webrtc-part-2/gif.gif "gif time")
 
 In the next post, I'll finish with a note on performance and speed ups.
+
+(Edited 3/12/2020: originally published at datajournal.co.uk. Republished in my personal blog with minor grammar fixes.)

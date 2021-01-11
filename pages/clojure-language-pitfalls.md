@@ -4,8 +4,6 @@ Tags:Clojure,Culture
 Date: 2017 07 13
 Skip-post-walk: true
 
-(Edited 3/12/2020: originally published at datajournal.co.uk)
-
 # Avoiding the pitfall of language fundamentalism. Why the obsessive pursuit of language mastery will not translate in results.
 
 I've been working with Clojure for the past year professionally and it has been an amazing experience. The language is built around sound computer science concepts and you learn so much that transfers to other languages, just by watching Rick Hicks' talks. I'd recommend [Hammock Driven Development](https://www.youtube.com/watch?v=f84n5oFoZBc), [The Value of Values](https://www.infoq.com/presentations/Value-Values) and the classic [Simple made easy](https://www.infoq.com/presentations/Simple-Made-Easy). Just the way it gets you thinking about concepts like immutability, values, state, why pure functions are the way to go, for me, it made me a better software developer. Clojure is feature rich and it aims at making your life easier when producing maintainable code. There's an extensive core library that will make you feel incredibly productive once you learn it, there are features for concurrent and parallel programming, a great macro system, an incredible Repl that speeds the iteration cycle, not to mention the java interop that lets you access the multitude of libraries in java land.
@@ -27,3 +25,5 @@ The last three paragraphs can be written in a different way: knowing the languag
 
 
 Do I mean with all this that you should disregard learning the tools and stack overflow your way through the requirements? No, it means that it's necessary to factor in other things when deciding how to reason about your work. The conclusion is that what's necessary is to switch the focus according to the problem at hand and your motivation. Is worrying about the structure and fundamentals of the language, related to the task at hand, or is the need to iterate and produce a functional, readable first pass of a system the current objective. Both are valid pursuits, but keep in mind that they do not intersect at all times.
+
+(Edited 3/12/2020: originally published at datajournal.co.uk)

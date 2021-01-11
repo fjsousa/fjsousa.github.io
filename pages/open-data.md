@@ -4,7 +4,6 @@ Tags: Open Data,Journalism,Government Data
 Date: 2016 10 10
 Skip-post-walk: true
 
-(Edited 3/12/2020: originally published at datajournal.co.uk.)
 # Melhor da Zona or: How I Learned to Stop Worrying and Love Data Transparency
 
 The project ["Melhor da Zona"](http://www.melhordazona.com) (which roughly translates to  "Best in the Area") was presented at [Pixels.camp](https://pixels.camp) with a talk entitled *Melhor Da Zona or: How I Learned to Stop Worrying and Love Data Transparency*. This is the description of the talk that was submitted:
@@ -32,3 +31,5 @@ If you read Portuguese and want to learn more about the project you can check th
 - [Website](http://melhordazona.com)
 - [Blog](http://blog.melhordazona.com)
 - [Facebook](https://www.facebook.com/melhordazona)
+
+(Edited 3/12/2020: originally published at datajournal.co.uk.)

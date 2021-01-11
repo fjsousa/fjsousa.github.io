@@ -5,8 +5,6 @@ Date: 2015 02 27
 Thumb:numerical.png
 Thumb-alt: Numerical Field
 
-(Edited 3/12/2020: originally published at datajournal.co.uk. Republished in my personal blog with minor grammar fixes.)
-
 # WebRTC Parallel Processing (part-1)
 
 I did a little experiment with WebRTC and a CFD (Computational Fluid Dynamics) solver I wrote.
@@ -182,3 +180,5 @@ I would recommend [veusz](https://veusz.github.io/).
 ![Numerical Field](assets/img/webrtc-part-1/numerical.png "Numerical")
 
 And that's it. In the next post, I'll show you how I developed from this single program poisson solver and distributed it among several browser tabs.
+
+(Edited 3/12/2020: originally published at datajournal.co.uk. Republished in my personal blog with minor grammar fixes.)

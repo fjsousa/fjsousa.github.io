@@ -4,8 +4,6 @@ Tags: Open Data
 Date: 2017 09 23
 Skip-post-walk: true
 
-(Editado 4/12/2020: originalmente publicado em [medium](https://medium.com/@fjsousa/como-fazer-um-pedido-de-acesso-a-dados-p%C3%BAblicos-256372810005))
-
 # Como fazer um pedido de acesso a dados públicos
 
 Uma página da Wikipédia mostra uma [lista de países](https://en.m.wikipedia.org/wiki/Freedom_of_information_laws_by_country) que passaram legislação que regula o acesso dos cidadãos a dados públicos. Portugal não figura na lista. Esta falta não surpreende uma vez que está de acordo com a percepção aceite do défice de transparência das instituições públicas nacionais. De fato, Portugal aparece em 29º lugar nos rankings de transparência internacionais, e [17º entre 42 países Europeus](https://tradingeconomics.com/country-list/corruption-rank?continent=europe), a cerca de metade da tabela. Aparece a seguir a países como Dinamarca, Alemanha e o Reino Unido, e à frente de países como Eslováquia, Espanha e Ucrânia, para nomear alguns.
@@ -141,3 +139,5 @@ Apresentar o número de escolas como objeção à divulgação das taxas de apro
 </div>
 
 Este meu último pedido não teve resposta e nesta fase, caso houvessem dúvidas, é claro que o IMT não está disposto a colaborar.
+
+(Editado 4/12/2020: originalmente publicado em [medium](https://medium.com/@fjsousa/como-fazer-um-pedido-de-acesso-a-dados-p%C3%BAblicos-256372810005))

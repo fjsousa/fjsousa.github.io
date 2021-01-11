@@ -508,3 +508,56 @@ canvas {
     width: 100%;
     position: absolute;
 }
+
+.tags {
+  span {
+    color: #bbb;
+    display: inline-block;
+    margin-right: 10px;
+    margin-bottom: 10px;
+  }
+
+  a {
+    display: inline-block;
+    margin-right: 5px;
+    margin-bottom: 10px;
+
+    &:last-child {
+      margin-right: 0;
+    }
+  }
+}
+
+.view {
+  span {
+    color: #bbb;
+    display: inline-block;
+    margin-right: 10px;
+    margin-bottom: 10px;
+  }
+
+  a {
+    display: inline-block;
+    margin-right: 5px;
+    margin-bottom: 10px;
+
+    &:last-child {
+      margin-right: 0;
+    }
+  }
+}
+
+.articles-actions {
+  display: flex;
+  flex-wrap: wrap;
+  margin-bottom: 10px;
+  justify-content: space-between;
+
+  .tags {
+    margin-bottom: 20px;
+  }
+
+  .view {
+    margin-bottom: 20px;
+  }
+}
