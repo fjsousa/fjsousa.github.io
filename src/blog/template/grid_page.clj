@@ -22,7 +22,8 @@
              [:a {:href "#", :class "close"}]
              [:div {:class "container"}
               [:div {:class "row"}
-               [:div {:class "col-12"}
+               [:div {
+                      :class "col-12"}
                 [:article {:class "article-body"}
                  [:div {:class "date"} (f/unparse  (f/formatter "d MMMM, yyyy") date)]
                  [:h2 {:class "h1"}

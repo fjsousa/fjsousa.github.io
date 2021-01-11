@@ -1,12 +1,14 @@
 (ns blog.template.single-page
   (:require [clojure.tools.reader.edn :as edn]
             [blog.template.shared :as shared]
-            [hiccup.core :as hiccup]))
+            [hiccup.core :as hiccup]
+            [clj-time.format :as f]))
 
 (defn main [[page-key {{:keys [title date tags subtitle thumb thumb-alt link-rewrite] :as metadata} :metadata content :content}]]
   [page-key
    (shared/main metadata (into [:div {:class "col-12 col-sm-6 col-sm-push-3"}
                                 [:article {:class "article-body"}
+                                 [:div {:class "date"} (f/unparse  (f/formatter "d MMMM, yyyy") date)]
                                  content]]))])
 
 
