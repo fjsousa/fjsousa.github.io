@@ -15,7 +15,7 @@ In 2015, I moved to London and worked for E-commerce, entertainment and financia
 
 In 2016, I created a personal project using open driving licence pass rates, that contributed to better transparency in an otherwise opaque sector of the Portuguese economy.
 
-Currently I'm focused primarily in distributed systems and numerical problems.
+Currently, I'm focused primarily in distributed systems and numerical problems.
 
 Outside of work, I've grappled in Brazilian Jiu-Jitsu on and off for about a decade, having attended 3 competitions in London, winning a 2nd place in one of them. After a 10 day meditation retreat in 2018, I've been a regular meditator and I've recently joined London's branch of the Great Debaters Club.
 
