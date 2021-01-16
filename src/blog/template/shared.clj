@@ -11,7 +11,7 @@
     [:meta {:content "width=device-width, initial-scale=1, maximum-scale=1" :name "viewport"}]
     [:meta {:name "description" :content subtitle}]
     [:title title]
-    [:link {:href "assets/css/main.css", :rel "stylesheet"}]
+    [:link {:href "/assets/css/main.css", :rel "stylesheet"}]
     [:script {:src "https://plausible.io/js/plausible.js"
               :async "defer" :data-domain "flaviosousa.co"}]]
 
@@ -32,20 +32,20 @@
            [:br]"Past projects, blogging."]]]]
        [:div {:class "col-12 col-sm-4"}
         [:div {:class "social-links"}
-         [:div [:a {:href "/about.html"} [:strong "About me"]]]
+         [:div [:a {:href "/about/"} [:strong "About me"]]]
          [:a {:href (:medium social), :target "_blank"}
-          [:img {:src "assets/img/icon-medium.svg"}]]
+          [:img {:src "/assets/img/icon-medium.svg"}]]
          [:a {:href (:linkedin social), :target "_blank"}
-          [:img {:src "assets/img/icon-linkedin.svg"}]]
+          [:img {:src "/assets/img/icon-linkedin.svg"}]]
          [:a {:href (:twitter social), :target "_blank"}
-          [:img {:src "assets/img/icon-twitter.svg"}]]
+          [:img {:src "/assets/img/icon-twitter.svg"}]]
          [:a {:href (:github social), :target "_blank"}
-          [:img {:src "assets/img/icon-github.svg"}]]]]]]]
+          [:img {:src "/assets/img/icon-github.svg"}]]]]]]]
     [:main
      [:div {:class "container"}
       [:div {:class "row"}
        content]]]
     [:a {:href "#", :class "back-to-top"}]]
-   [:script {:type "text/javascript" :src "assets/js/main.js"}]
-   [:script {:type "text/javascript" :src "assets/js/rags.js"}]
-   [:script {:type "text/javascript" :src "assets/js/fgm-main.js"}]])
+   [:script {:type "text/javascript" :src "/assets/js/main.js"}]
+   [:script {:type "text/javascript" :src "/assets/js/rags.js"}]
+   [:script {:type "text/javascript" :src "/assets/js/fgm-main.js"}]])

@@ -48,7 +48,7 @@ we have for instance:
 
 The field *U* plotted in *x*, *y* looks something like this:
 
-![Analytical Field](assets/img/webrtc-part-1/analitical.png "Analytical Field")
+![Analytical Field](/assets/img/webrtc-part-1/analitical.png "Analytical Field")
 
 Replacing the first equation with this *U* function we get:
 
@@ -70,7 +70,7 @@ find many references all over the internet, [like this one](http://www.ece.utah.
 Basically, the idea is to approximate the derivative in an array of points in the domain of the solution. The points are equally spread
 in *x* and *y* like in the image bellow:
 
-![points](assets/img/webrtc-part-1/domain.png "Points")
+![points](/assets/img/webrtc-part-1/domain.png "Points")
 
 In the image, *h* is the distance between two points. In the x and y direction, this distance will be called *Δx* and *Δy*, respectively.
 Here's the numerical formula for our equation:
@@ -177,7 +177,7 @@ I would recommend [veusz](https://veusz.github.io/).
   poisson.print('./field.txt', poisson.u.old);
 ```
 
-![Numerical Field](assets/img/webrtc-part-1/numerical.png "Numerical")
+![Numerical Field](/assets/img/webrtc-part-1/numerical.png "Numerical")
 
 And that's it. In the next post, I'll show you how I developed from this single program poisson solver and distributed it among several browser tabs.
 

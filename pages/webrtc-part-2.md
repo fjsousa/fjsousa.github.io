@@ -246,7 +246,7 @@ Now that we have our master/server approach defined, we'll apply it to the CFD p
 
  The way we parallelize the problem  is called Domain Parallelization. In broad strokes, this is achieved by splitting the geometry of the problem among independent processors, in this case, browser tabs. Each tab is responsible for running one instance of the Poisson solver. The solver is converged until the stop criteria are met, which can be the number of iterations or the residue of the iteration being lower than a maximum value. Then, the boundaries are emitted to the neighbour tabs. For instance, the tab with section 1 will emit the east boundary to section 3, and the south boundary to section 2. The process keeps going until the global convergence is met. In our case, this happens when the global residue drops below a maximum allowed value.
 
-![Domain Split](assets/img/webrtc-part-2/domain-split.png "Domain Split")
+![Domain Split](/assets/img/webrtc-part-2/domain-split.png "Domain Split")
 
 I've put a [repository](https://github.com/fjsousa/poisson-rtc) on github with the code I used in this experiment. The main structure is:
 
@@ -321,7 +321,7 @@ new AllPeers().update(function(peers){
 
 When the process finishes, you'll get a download link for each block. In this case, 4. To finish, here's a nice gif animation. This is what the iterative process looks like in the first few iterations:
 
-![gif time](assets/img/webrtc-part-2/gif.gif "gif time")
+![gif time](/assets/img/webrtc-part-2/gif.gif "gif time")
 
 In the next post, I'll finish with a note on performance and speed ups.
 

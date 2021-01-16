@@ -16,7 +16,7 @@ Based on my meditation practice following a 10-day retreat in 2018 and after alm
 
 If you are renting like me then you probably don't have an extra room and space is at a premium. You're also probably looking into investing some money into office equipment. There are many options you can consider like elaborate standup desks that allow you to quickly change height and expensive chairs. I would suggest a simpler setup which cost me less than 150£ online.
 
-![A minimalist affordable remote desk setup.](assets/img/remote-work/desk_s.jpg "A minimalist affordable remote desk setup, complete with a cat holder.")
+![A minimalist affordable remote desk setup.](/assets/img/remote-work/desk_s.jpg "A minimalist affordable remote desk setup, complete with a cat holder.")
 
 Only a few days of working from my cheap IKEA dining room chair made me realize how much I was undervaluing the comfort of a modern office chair. A good comfortable chair for you to sit on the whole day is not going to be cheap, so, instead of spending money on an additional piece of furniture, consider a basic standup fixed desk if you can work standing up. The one in the picture cost me around 100£ online. If you think you're going to get tired, you could always go for a tall chair to alternate. The one in the picture costs around 30£. It's not comfortable to spend a full day on it, but it encourages me to alternate between quick sitting down periods and standing up.
 
@@ -27,7 +27,7 @@ The keyboard and mouse are accessories and I wouldn't recommend buying them at f
 
 In normal times, the immediate, most measurable benefit you get from remote work is probably the time you save commuting. Being pushed into a crowded underground train, trying to find space to read a book stops being funny very quickly. However, you more than likely have got used to the routine, and suddenly without this daily ritual, you'll find yourself not having a clear separation between work and personal life. This can be disastrous in the long run if you can't find the right headspace as you find all sorts of personal issues competing with work for your attention.
 
-![It's important to have a routine.](assets/img/remote-work/routine.jpg "It's important to have a routine.")
+![It's important to have a routine.](/assets/img/remote-work/routine.jpg "It's important to have a routine.")
 
 ### Scheduling the day (but really doing it)
 

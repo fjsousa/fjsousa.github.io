@@ -26,7 +26,7 @@ The existing algorithm was the following:
 
 - The inner loop looks for active cells in a map of ignition times and propagates the fire outwards, to each one of the 8 neighbours.
 
-![Outer propagation](assets/img/fgm/outer.png "Outer Propagation")
+![Outer propagation](/assets/img/fgm/outer.png "Outer Propagation")
 
 - The ignition time of each neighbour is computed with the formula below. The ignition map is then updated:
 
@@ -121,7 +121,7 @@ As I said, porting this algorithm to GPUs in a straightforward way resulted in v
 Also, the process doesn't have a great degree of parallelism because at each time step, very few cells
 are actually propagating and thus, require computation. Here's the speedups for several scenarios with different values for wind, fuel and moisture:
 
-![Outer propagation](assets/img/fgm/dumb.png "Outer Propagation")
+![Outer propagation](/assets/img/fgm/dumb.png "Outer Propagation")
 
 As you can see, very far from the two orders of magnitude in performance increase you usually get with GPUs.
 
@@ -147,7 +147,7 @@ Looking at the problem in another way, what we have is a condition that can be s
 
 From this, instead of computing outward ignition times at each neighbour, I compute the ignition time at the inner cell.
 
-![Outer propagation](assets/img/fgm/inner.png "Outer Propagation")
+![Outer propagation](/assets/img/fgm/inner.png "Outer Propagation")
 
 But now the question is, how can I compute ignition times from cells that haven't burned yet?
 
@@ -217,6 +217,6 @@ The two models side by side, with the same iteration interval of 100ms. Notice t
 <button onclick="smart2.run();dumb2.run();" class="actionbutton" style="position: relative; left: 50%; transform: translateX(-50%);">►</button>
 
 
-And that's it. If you want to know more just follow the link and read the <a href="assets/docs/sousa-etall.pdf" target="_blank">white paper</a>.
+And that's it. If you want to know more just follow the link and read the <a href="/assets/docs/sousa-etall.pdf" target="_blank">white paper</a>.
 
 (Edited 3/12/2020: originally published at datajournal.co.uk. Republished in my personal blog with minor grammar fixes.)

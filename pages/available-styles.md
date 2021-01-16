@@ -5,7 +5,7 @@ Subtitle: Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmo
 Thumb: 0.jpg
 Thumb-alt: Lorem ipsum dolor sit amet, consectetur adipiscing elit.
 Grid-img: 0.jpg
-Grid-media-item: <a target="_blank" href="https://www.youtube.com/watch?v=RM7R83VQuC8" title="CFD - High-Speed train"><img alt="CFD - High-Speed train" src="assets/img/available-styles/0.jpg"></a>
+Grid-media-item: <a target="_blank" href="https://www.youtube.com/watch?v=RM7R83VQuC8" title="CFD - High-Speed train"><img alt="CFD - High-Speed train" src="/assets/img/available-styles/0.jpg"></a>
 
 # h1 NEEDS SOME CONTENT
 
@@ -26,7 +26,7 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor i
 
 Youtube video
 
-<a target="_blank" href="https://www.youtube.com/watch?v=RM7R83VQuC8" title="CFD - High-Speed train"><img alt="CFD - High-Speed train" src="assets/img/available-styles/0.jpg"></a>
+<a target="_blank" href="https://www.youtube.com/watch?v=RM7R83VQuC8" title="CFD - High-Speed train"><img alt="CFD - High-Speed train" src="/assets/img/available-styles/0.jpg"></a>
 
 js:
 
@@ -47,7 +47,7 @@ if (a < b || b > c || b ~= a)
 clojure
 
 ```clojure
-[:script {:type "text/javascript" :src "assets/src/highlight.pack.js"}]
+[:script {:type "text/javascript" :src "/assets/src/highlight.pack.js"}]
 [:script "hljs.initHighlightingOnLoad();"]
 ```
 
@@ -60,7 +60,7 @@ inline:  <span class="mathjax">t + \frac{l}{ROS}</span>
 
 images
 
-![A minimalist affordable remote desk setup.](assets/img/remote/desk_s.jpg "A minimalist affordable remote desk setup, complete with a cat holder.")
+![A minimalist affordable remote desk setup.](/assets/img/remote/desk_s.jpg "A minimalist affordable remote desk setup, complete with a cat holder.")
 
 custom code:
 

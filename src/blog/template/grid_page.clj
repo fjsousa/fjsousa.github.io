@@ -10,10 +10,10 @@
   (if ((:skip config) page-key)
     res
     (into res
-          [[:article {:class "masonry-item article-item open-lightbox", :data-lightbox (str (+ 1 (/ (count res) 2)))}
+          [[:article {:class "masonry-item article-item open-lightbox" :date date :data-lightbox (str (+ 1 (/ (count res) 2)))}
             (when thumb
               [:figure (when video-arrow {:class "grid-video"})
-               [:img {:src (format "assets/img/%s/%s" (name page-key) thumb), :alt thumb-alt}]])
+               [:img {:src (format "/assets/img/%s/%s" (name page-key) thumb), :alt thumb-alt}]])
             [:div {:class "excerpt"}
              [:p title]]]
 
@@ -30,7 +30,7 @@
                   [:strong title]]
                  (when grid-img
                    [:div {:class "video-wrapper"}
-                    [:img {:src (format "assets/img/%s/%s" (name page-key) grid-img), :alt "article image"}]])
+                    [:img {:src (format "/assets/img/%s/%s" (name page-key) grid-img), :alt "article image"}]])
                  (when grid-media-item
                    [:div {:class "video-wrapper"}
                     grid-media-item])
@@ -38,7 +38,7 @@
              (let [options (cond-> {:class "view-article"}
                              link-rewrite              (assoc :href link-rewrite
                                                               :target "_blank")
-                             (nil? link-rewrite) (assoc :href (str (name page-key) ".html")))
+                             (nil? link-rewrite) (assoc :href (str (name page-key) "/")))
                    copy (if link-copy
                           (str link-copy " →")
                           "Read full article →")]

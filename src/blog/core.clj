@@ -12,7 +12,8 @@
             [markdown.core :as md]
             [org.satta.glob :as glob]
             [clojure.java.shell :refer [sh]]
-            [clojure.walk :refer [postwalk]]))
+            [clojure.walk :refer [postwalk]]
+            [clojure.java.io :refer [make-parents]]))
 
 (defn get-pages
   "root: markdown folder path. returns a glob - java.io object"
@@ -102,7 +103,9 @@
              (= :code (-> form (nth 2) first))) (highlight-code form)
         (and (vector? form)
              (= "mathjax" (-> form (nth 1) :class))) (mathjax form)
-    :else form))
+        :else form))
+
+(def walk-fn-memo (memoize walk-fn))
 
 (defn parse-page
   [page]
@@ -116,7 +119,7 @@
                 (throw (Exception. (format "Markdown not valid for '%s' Check logs." page-key)))))
         page-parsed (-> page-val
                         (update-in [:html] #(->> % hickory/parse-fragment (mapv hickory/as-hiccup) concat (into [:div])))
-                        (update-in [:html] #(if skip-post-walk? % (postwalk walk-fn %)))
+                        (update-in [:html] #(if skip-post-walk? % (postwalk walk-fn-memo %)))
                         (clojure.set/rename-keys {:html :content})
                         (update-in [:metadata :title]  first)
                         (update-in [:metadata :subtitle] first)
@@ -173,7 +176,9 @@
 (defn output!
   [root]
   (doseq [[k page] (build-hiccup root)]
-    (let [path (str root "/" (name k) ".html")]
+    (let [path (if (= k :index) (str root "/index.html")
+                 (str root "/" (name k) "/index.html"))]
+      (when (not (= k :index)) (make-parents path))
       (spit path (hiccup/html page)))))
 
 (defn watch-fn []

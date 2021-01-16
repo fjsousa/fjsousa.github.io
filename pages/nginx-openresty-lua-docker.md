@@ -125,7 +125,7 @@ As an example, imagine you have a website that you want to protect with a passwo
 
 We want the user to see a barrier form prompting an authentication token. When the user sends the token, we want to validate it against a list of valid tokens. If the authentication token is valid, we'll store a domain cookie with a token, so that next time, the cookie in the headers is validated instead and the user proceeds to `http://www.theuselessweb.com/`. If the authentication token is found to be invalid, the server replies 401. This example is a simplified version of the proxy server that went live with Style.com's Beta launch, and that served as inspiration for this blog post.
 
-![Barrier Page http flow](assets/img/nginx-openresty-lua-docker/barrier-page-flow.jpg "Barrier Page http flow")
+![Barrier Page http flow](/assets/img/nginx-openresty-lua-docker/barrier-page-flow.jpg "Barrier Page http flow")
 
 Our proxy server will have the proxying logic at `/`. The location block `location /` in the Nginx configuration file below, means that every request that starts with `/` will go trough the `access_by_lua lualib/main.lua` directive. The cookie validation logic will live in this file. `/auth` is the endpoint which will handle the token authentication posted by the authentication form of the barrier page. `/form` is serving the html form and assets of the barrier page.
 

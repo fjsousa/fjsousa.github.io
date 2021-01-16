@@ -4,7 +4,7 @@ Subtitle: flaviosousa.co, software engineer
 Skip-post-walk: true
 Tags: about
 
-I'm a software engineer currently working as an independent contractor through [Codecadre](https://codecadre.ai). I work mainly with javascript and clojure.
+!I'm a software engineer currently working as an independent contractor through [Codecadre](https://codecadre.ai). I work mainly with javascript and clojure.
 
 After a university degree in mechanical engineering with a strong focus in energy and fluid computational analysis, I worked at a university lab doing fluid flow analysis for external clients for a couple of years.
 
@@ -20,10 +20,10 @@ Currently, I'm focused primarily in distributed systems and numerical problems.
 Outside of work, I've grappled in Brazilian Jiu-Jitsu on and off for about a decade, having attended 3 competitions in London, winning a 2nd place in one of them. After a 10 day meditation retreat in 2018, I've been a regular meditator and I've recently joined London's branch of the Great Debaters Club.
 
 
-You can check [my cv here](assets/docs/cv_flavio_sousa.pdf). If you want to get in touch please email me at mail@fjsousa.com.
+You can check [my cv here](/assets/docs/cv_flavio_sousa.pdf). If you want to get in touch please email me at mail@fjsousa.com.
 
 
-!["Me at Panoramico de Monsanto, Lisbon, October 2020"](assets/img/about/about.jpg "Me at Panoramico de Monsanto, Lisbon, October 2020".)
+!["Me at Panoramico de Monsanto, Lisbon, October 2020"](/assets/img/about/about.jpg "Me at Panoramico de Monsanto, Lisbon, October 2020".)
 
 What I've been up to these past years:
 
