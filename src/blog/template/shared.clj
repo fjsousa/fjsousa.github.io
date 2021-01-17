@@ -48,4 +48,5 @@
     [:a {:href "#", :class "back-to-top"}]]
    [:script {:type "text/javascript" :src "/assets/js/main.js"}]
    [:script {:type "text/javascript" :src "/assets/js/rags.js"}]
-   [:script {:type "text/javascript" :src "/assets/js/fgm-main.js"}]])
+   [:script {:type "text/javascript" :src "/assets/js/fgm-main.js"}]]
+  )
