@@ -15,7 +15,9 @@
       (.pushState js/history nil "" new-relative-path))))
 
 (defn get-hash []
-  (apply str (-> js/window .-location .-hash rest )))
+  (let [hash (apply str (-> js/window .-location .-hash rest ))]
+    (when (not (empty? hash))
+      hash)))
 
 (defn set-hash [string]
   (-> js/window .-location .-hash (set! string)))
@@ -30,11 +32,13 @@
             (fn [_]
               (let [i (.getAttribute el "data-lightbox")
                     data-lightbox (.querySelector js/document (str ".lightbox[data-lightbox=\"" i "\"]") )]
-                (.add (.-classList data-lightbox ) "open"))))
+                (.add (.-classList data-lightbox ) "open")
+                (set-hash i))))
 
 (defn close-modal-evl [el]
   (fn [_]
-    (-> el .-parentElement .-parentElement .-classList (.remove "open"))))
+    (-> el .-parentElement .-parentElement .-classList (.remove "open"))
+    (set-hash "")))
 
 (defn close-modal-click-outside-evl [ev]
   (let [modal-el (.querySelector js/document ".inner")
@@ -45,7 +49,8 @@
                                                                                      ;;true means the event is handled by this event handler
                                                                                      ;;before being passed to the elements below
 
-                                                                                     (-> el .-classList (.remove "open"))))))))
+                                                                                     (-> el .-classList (.remove "open"))
+                                                                                     (set-hash "")))))))
 (defn class->els
   [class]
   (.getElementsByClassName js/document class))
@@ -60,7 +65,7 @@
 (defn class-add [class el]
   (-> el .-classList (.add class)))
 
-(defn view-mode
+(defn set-view-mode!
   "view mode can be :list or :grid"
   [mode]
   (let [articles-grid-el (-> "articles-grid grid-component" class->els (.item 0))
@@ -74,19 +79,25 @@
     (class-add "not-selected" (if list? grid-button-el list-button-el))
     (set-param "mode" (name mode))))
 
+(defn open-modal [idx]
+  (->> (filter #(= (str idx) (.getAttribute % "data-lightbox")) (class->array "lightbox"))
+       first
+       (open-modal-evl)))
+
 (defn init-grid []
   (let [lightboxes (.getElementsByClassName js/document "open-lightbox")
         close-elem (.getElementsByClassName js/document "close")
         list-button-el (-> "list" class->els (.item 0))
         grid-button-el (-> "grid" class->els (.item 0))
-        articles-grid-el (-> "articles-grid grid-component" class->els (.item 0))
-        articles-list-el (-> "articles-grid list-component" class->els (.item 0))
-        mode (keyword (get-param "mode"))]
-    (when mode (view-mode mode))
+        mode (keyword (get-param "mode"))
+        modal (get-hash)]
+    (when mode (set-view-mode! mode))
+    (when modal ((open-modal modal)))
+
     (.addEventListener grid-button-el "click" (fn []
-                                                (view-mode :grid)))
+                                                (set-view-mode! :grid)))
     (.addEventListener list-button-el "click" (fn []
-                                                (view-mode :list)))
+                                                (set-view-mode! :list)))
 
     (-> lightboxes js/Array.from (.forEach (fn [el]
                                              (.addEventListener el "click" (open-modal-evl el)))))
