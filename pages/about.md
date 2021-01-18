@@ -2,9 +2,9 @@ Title: flaviosousa.co, software engineer
 Date: 2020 10 30
 Subtitle: flaviosousa.co, software engineer
 Skip-post-walk: true
-Tags: about
+Tags: Blog
 
-!I'm a software engineer currently working as an independent contractor through [Codecadre](https://codecadre.ai). I work mainly with javascript and clojure.
+I'm a software engineer currently working as an independent contractor through [Codecadre](https://codecadre.ai). I work mainly with javascript and clojure.
 
 After a university degree in mechanical engineering with a strong focus in energy and fluid computational analysis, I worked at a university lab doing fluid flow analysis for external clients for a couple of years.
 

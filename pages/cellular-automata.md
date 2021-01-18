@@ -1,6 +1,6 @@
 Title: Forest Fires and Parallel Cellular Automata, going from 8x to 240x faster with GPUs
 Subtitle: In this blog post, I'll show you two Cellular Automata algorithms used in Forest Fire Simulation. The models differ in the way they use the GPU architecture to boost performance. The first model was implemented in a trivial way, without much concern for the unique memory access pattern of the GPU. The second algorithm addresses this issue and outperforms the first by two orders of magnitude.
-Tags: Engineering, Software
+Tags: Software,Engineering,Journal
 Date: 2015 6 21
 Thumb: slug.png
 

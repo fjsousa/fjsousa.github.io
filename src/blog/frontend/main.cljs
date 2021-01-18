@@ -1,4 +1,5 @@
-(ns blog.frontend.main)
+(ns blog.frontend.main
+  (:require [clojure.string :as str]))
 ;;require module as
 ;;(:require ["highlightjs" :as hljs])
 ;;load script as
@@ -84,6 +85,57 @@
        first
        (open-modal-evl)))
 
+(defn add-click-listener [element cb]
+  (.addEventListener element "click" cb))
+
+(defn class-for-each
+  "add click listeners to all el in class"
+  [class cb]
+  (.forEach (class->array class) cb))
+
+
+(defn show-items [tag]
+  (class-for-each
+   "article-item"
+   (fn [element]
+     (let [el-tags (set (str/split (.getAttribute element "tags") #","))
+           is-element? (el-tags tag)]
+       (class-add "hide" element)
+       (class-add "not-selected" element)
+       (when is-element?
+         (do (class-remove "hide" element)
+             (class-remove "not-selected" element)))))))
+
+(defn add-class-to-class-el [new-class class]
+  (class-for-each
+   class
+   (fn [el]
+     (class-add new-class el))))
+
+(defn tag->element [t]
+  (.querySelector js/document (str ".tag[tag=\"" t "\"]") ))
+
+(defn select-tag
+  "catch all action for tag t selection"
+  [t]
+  (let [tag-element (tag->element t)]
+    (class-remove "not-selected" tag-element)
+    (show-items t)))
+
+(defn setup-tag-system []
+  (let [url-tag (get-param "tag")]
+    (when url-tag
+      (select-tag url-tag))
+    (class-for-each "tag" (fn [element]
+                            (add-click-listener element
+                                                (fn [event]
+                                                  (let [t (.getAttribute element "tag")]
+                                                    (set-param "tag" t)
+                                                    (add-class-to-class-el "not-selected" "tag")
+                                                    (class-remove "not-selected" element)
+                                                    (show-items t)
+                                                    (.preventDefault event))))))))
+
 (defn init-grid []
   (let [lightboxes (.getElementsByClassName js/document "open-lightbox")
         close-elem (.getElementsByClassName js/document "close")
@@ -91,6 +143,7 @@
         grid-button-el (-> "grid" class->els (.item 0))
         mode (keyword (get-param "mode"))
         modal (get-hash)]
+    (setup-tag-system)
     (when mode (set-view-mode! mode))
     (when modal ((open-modal modal)))
 

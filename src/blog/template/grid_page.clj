@@ -6,7 +6,7 @@
 (def config (-> "src/blog/config.edn" slurp clojure.tools.reader.edn/read-string))
 
 (defn article-item [[page-key {{:keys [video-arrow title date tags subtitle thumb thumb-alt slug link-rewrite grid-media-item grid-img link-copy] :as metadata} :metadata content :content idx :idx}]]
-  [:article {:class "masonry-item article-item open-lightbox"  :data-lightbox (str idx)}
+  [:article {:class "masonry-item article-item open-lightbox"  :data-lightbox (str idx) :tags (apply str (interpose "," (conj tags "All")))}
    (when thumb
      [:figure (when video-arrow {:class "grid-video"})
       [:img {:src (format "/assets/img/%s/%s" (name page-key) thumb), :alt thumb-alt}]])
@@ -41,22 +41,20 @@
                  "Read full article →")]
       [:a options copy])]])
 
-(def article-actions
+(defn article-actions [tags]
   [:div {:class "articles-actions"}
-   #_[:div {:class "tags"}
-    [:span "Tags:"]
-    [:a {:href "#"} "All"]
-    [:a {:href "#"} "Personal"]
-    [:a {:href "#"} "Software"]
-    [:a {:href "#"} "Experiments"]]
+   (into [:div {:class "tags"}
+          [:span "Tags:"]
+          [:a {:href "" :class "tag not-selected" :tag "All"} "All"]]
+         (mapv (fn [t] [:a {:href "" :class "tag not-selected" :tag t} t]) tags))
    [:div {:class "view"}
     [:span "View:"]
     [:a {:href "#", :class "list not-selected"} "List"]
     [:a {:href "#", :class "grid"} "Grid"]]])
 
-(defn grid [list grid lightbox]
+(defn grid [list grid lightbox tags]
   [:div {:class "col-12"}
-   article-actions
+   (article-actions tags)
    (into [:div] lightbox)
    (into
     [:div {:class "masonry-grid articles-grid list-component list hide"}] list)
@@ -80,10 +78,15 @@
                     (sort-by #(-> % first))
                     (mapv article-item))
 
+        tags (->> indexed-pages
+                  (reduce-kv (fn [res k v]
+                               (into res (-> v :metadata :tags))) [])
+                  distinct)
+
         lightbox-items (->>
                         indexed-pages
                         (mapv article-lightbox))]
-  (shared/main {:title (:head-title config) :subtitle (:meta-description config)} (grid list grid-items lightbox-items))))
+    (shared/main {:title (:head-title config) :subtitle (:meta-description config)} (grid list grid-items lightbox-items tags))))
 
 #_(->> (main (blog.core/parse-markdowns (-> "src/blog/config.edn" slurp edn/read-string :root)))
      #_hiccup.core/html

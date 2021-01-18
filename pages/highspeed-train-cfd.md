@@ -1,6 +1,6 @@
 Title: HighSpeed train CFD Simulation
 Date: 2012 03 19
-Tags: CFD, Engineering
+Tags: Engineering,Videos
 Subtitle: CFD RANS simulation of an high-speed train.
 Thumb: thumb.jpg
 Thumb-alt: Open pass rates at pixels camp conference.

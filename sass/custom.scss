@@ -1,7 +1,3 @@
-.hide {
-    display: none;
-}
-
 .not-selected {
     text-decoration: none;
 }
@@ -71,4 +67,8 @@
         }
     }
 
+}
+
+.hide {
+    display: none !important;
 }
