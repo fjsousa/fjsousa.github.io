@@ -45,6 +45,14 @@
      [:div {:class "container"}
       [:div {:class "row"}
        content]]]
+    [:footer
+     [:div {:class "container"}
+      [:div {:class "row"}
+       [:div {:class "col-12"}
+        [:p
+         [:small
+          [:a {:target "_blank" :href "https://blog.mozilla.org/firefox/what-is-a-web-tracker/"} "I'm tracker free! "]
+          [:span " • " [:a {:href "https://github.com/fjsousa/fjsousa.github.io", :target "_blank"} "View on Github"]]]]]]]]
     [:a {:href "#", :class "back-to-top"}]]
    [:script {:type "text/javascript" :src "/assets/js/main.js"}]
    [:script {:type "text/javascript" :src "/assets/js/rags.js"}]
