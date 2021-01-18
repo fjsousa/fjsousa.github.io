@@ -1,6 +1,6 @@
 Subtitle: Culture is a big part of the carbon based entities that do pretty much all the computer programming these days. This blog post is my first take on the other fluffy aspects of software development. I'll argue why being a language fundamentalist won't safeguard you from producing a bad system.
 Title: Avoiding the pitfall of language fundamentalism. Why the obsessive pursuit of language mastery will not translate in results.
-Tags: Software
+Tags: Code
 Date: 2017 07 13
 Skip-post-walk: true
 

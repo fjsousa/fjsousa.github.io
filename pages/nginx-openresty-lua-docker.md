@@ -1,6 +1,6 @@
 Title: A development environment for a tricked out Nginx
 Date: 2017 08 07
-Tags: Software
+Tags: Code
 Subtitle: OpenResty lets you extend Nginx with Lua, a popular, embedded language. Setting up the development environment is time-consuming when Openresty is compiled locally, making collaboration harder. This blog post will show you a Docker based tool to start hacking with server side Lua.
 Thumb: thumb.jpg
 Thumb-alt: "Smart Proxy Http Diagram"

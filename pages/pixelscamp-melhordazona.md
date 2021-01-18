@@ -1,6 +1,6 @@
 Title: Open pass rates - Pixels Camp 2016
 Date: 2016 10 30
-Tags: Open Data,Videos
+Tags: Open-Data,Videos
 Subtitle: This talk is about how a culture of data sharing and transparency in government institutions fosters important and unexpected changes to society. To illustrate this point, I'm going to talk about Melhor da Zona, a web app that lets you search the best driving schools in your area.
 Thumb: thumb.jpg
 Thumb-alt: Open pass rates at pixels camp conference.
