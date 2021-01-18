@@ -8,7 +8,7 @@
   [page-key
    (shared/main metadata (into [:div {:class "col-12 col-sm-6 col-sm-push-3"}
                                 [:article {:class "article-body"}
-                                 [:div {:class "date"} (f/unparse  (f/formatter "d MMMM, yyyy") date)]
+                                 (when-not (= :about page-key) [:div {:class "date"} (f/unparse  (f/formatter "d MMMM, yyyy") date)])
                                  content]]))])
 
 
