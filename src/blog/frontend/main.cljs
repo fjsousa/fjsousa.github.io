@@ -147,10 +147,12 @@
     (when mode (set-view-mode! mode))
     (when modal ((open-modal modal)))
 
-    (.addEventListener grid-button-el "click" (fn []
-                                                (set-view-mode! :grid)))
-    (.addEventListener list-button-el "click" (fn []
-                                                (set-view-mode! :list)))
+    (.addEventListener grid-button-el "click" (fn [e]
+                                                (set-view-mode! :grid)
+                                                (.preventDefault e)))
+    (.addEventListener list-button-el "click" (fn [e]
+                                                (set-view-mode! :list)
+                                                (.preventDefault e)))
 
     (-> lightboxes js/Array.from (.forEach (fn [el]
                                              (.addEventListener el "click" (open-modal-evl el)))))
