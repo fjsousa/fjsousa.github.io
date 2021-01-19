@@ -3,6 +3,8 @@ Subtitle: This blog post shows how a culture of data sharing and transparency in
 Tags: Open-Data,Code
 Date: 2016 10 10
 Skip-post-walk: true
+Thumb: thumb-grid.png
+Thumb-alt: Stylized title of the article
 
 # Melhor da Zona or: How I Learned to Stop Worrying and Love Data Transparency
 
@@ -22,7 +24,7 @@ Having an intuitive way to search for driving schools has marked the difference 
 
 However, none of this could have happened, if the pass rates weren't published by the government in the first place. What other examples are out there? What other use cases and shifts could happen simply by having government institutions releasing data to the public?
 
-You can [download the full presentation here.](https://github.com/data-journal/data-journal.github.io/blob/master/assets/docs/melhor-da-zona.pdf)
+You can [download the full presentation here.](/assets/docs/melhor-da-zona.pdf)
 
 UPDATE: you can now [watch the video of the talk on youtube.](https://www.youtube.com/watch?v=fZm0paShVMw)
 

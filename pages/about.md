@@ -20,7 +20,7 @@ Currently, I'm focused primarily in distributed systems and numerical problems.
 Outside of work, I've grappled in Brazilian Jiu-Jitsu on and off for about a decade, having attended 3 competitions in London, winning a 2nd place in one of them. After a 10 day meditation retreat in 2018, I've been a regular meditator and I've recently joined London's branch of the Great Debaters Club.
 
 
-You can check [my cv here](/assets/docs/cv_flavio_sousa.pdf). If you want to get in touch please email me at mail@fjsousa.com.
+You can check [my cv here](/assets/docs/cv_flavio_sousa.pdf) (last updated in late 2019). If you want to get in touch please email me at mail@fjsousa.com.
 
 
 !["Me at Panoramico de Monsanto, Lisbon, October 2020"](/assets/img/about/about.jpg "Me at Panoramico de Monsanto, Lisbon, October 2020".)

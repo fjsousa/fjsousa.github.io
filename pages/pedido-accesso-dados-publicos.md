@@ -1,4 +1,4 @@
-Title: Como fazer um pedido de acesso a dados públicos[PT]
+Title: Como fazer um pedido de acesso a dados públicos [PT]
 Subtitle: Em 1993, Portugal passou em decreto Lei legislação que regula o acesso a dados públicos. No entanto, uma cultura de falta de transparência por parte da administração pública, impede os cidadãos de beneficiarem do que é efectivamente, uma das leis do género mais antigas da Europa.
 Tags: Open-Data,Blog
 Date: 2017 09 23
