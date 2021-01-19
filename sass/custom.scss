@@ -25,9 +25,9 @@
    position: absolute;
 }
 
-.grid-component {
+.articles-grid {
     margin-bottom: -30px;
-    width: calc(100% + 30px) !important;
+    width: 100% !important;
     position: relative;
     column-count: 3;
     @media (min-width: $l-min) {
@@ -60,10 +60,12 @@
         @media (max-width: $s-min) {
             width: 100%;//calc(100% - 30px);
         }
-        img {
-            position: relative;
-            z-index: -1;
+        figure {
+            img {
+                position: relative;
+                z-index: -1;
 
+            }
         }
     }
 
@@ -71,4 +73,13 @@
 
 .hide {
     display: none !important;
+}
+
+
+.article-body {
+    img {
+        position: relative;
+        left: 50%;
+        transform: translateX(-50%);
+    }
 }
