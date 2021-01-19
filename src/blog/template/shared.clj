@@ -40,7 +40,9 @@
          [:a {:href (:twitter social), :target "_blank"}
           [:img {:src "/assets/img/icon-twitter.svg"}]]
          [:a {:href (:github social), :target "_blank"}
-          [:img {:src "/assets/img/icon-github.svg"}]]]]]]]
+          [:img {:src "/assets/img/icon-github.svg"}]]
+         [:a {:href (:instagram social), :target "_blank"}
+          [:img {:src "/assets/img/icon-instagram.svg"}]]]]]]]
     [:main
      [:div {:class "container"}
       [:div {:class "row"}

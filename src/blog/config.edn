@@ -3,6 +3,8 @@
  :social {:linkedin "https://www.linkedin.com/in/fjsousa/"
           :medium "https://medium.com/@fjsousa"
           :github "https://github.com/fjsousa"
+          :twitter "https://twitter.com/verysocialsousa"
+          :instagram "https://www.instagram.com/flavio.jsousa/"
           :rss "rss.xml"}
  :title "flaviosousa.co"
  :head-title "flaviosousa.co, software engineer"
